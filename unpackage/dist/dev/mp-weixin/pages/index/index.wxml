@@ -1,1 +1,0 @@
-<view class="content"><view class="title">{{a}}</view><view class="sub-title">AI为你匹配最合适的院校</view><image class="logo" src="{{b}}"></image><button wx:if="{{c}}" class="login-btn" type="primary" bindtap="{{d}}">微信一键登录</button><view wx:if="{{e}}" class="login-tips"><text>我们将获取你的昵称与头像，用于方案多端同步与跨设备使用</text></view></view>

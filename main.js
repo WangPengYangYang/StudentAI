@@ -1,4 +1,8 @@
 import App from './App'
+import request from './utils/request.js'
+
+// 全局挂载请求模块
+uni.$request = request
 
 // #ifndef VUE3
 import Vue from 'vue'

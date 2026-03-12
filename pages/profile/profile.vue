@@ -1,0 +1,727 @@
+<template>
+  <view class="profile-container">
+    <!-- 顶部导航栏 -->
+    <view class="nav-bar">
+      <view class="nav-content">
+        <text class="nav-title">个人中心</text>
+        <view class="nav-spacer"></view>
+      </view>
+    </view>
+
+    <scroll-view class="profile-content" scroll-y="true" :style="{paddingBottom: safeAreaBottom}">
+      <!-- 用户信息卡片 -->
+      <view class="user-card">
+        <view class="user-avatar">
+          <image :src="userInfo.avatarUrl || '/static/logo.jpeg'" class="avatar-image"></image>
+          <view class="avatar-badge">{{ userInfo.completion_rate }}</view>
+        </view>
+        <view class="user-info">
+          <text class="user-name">{{ userInfo.nickName || '未登录' }}</text>
+          <text class="user-email">{{ userInfo.email || '请先登录' }}</text>
+          <view class="user-progress">
+            <view class="progress-bar">
+              <view class="progress-fill" :style="{width: userInfo.completion_rate + '%'}"></view>
+            </view>
+            <text class="progress-text">个人资料完成度 {{ userInfo.completion_rate }}%</text>
+          </view>
+        </view>
+        <view class="edit-button" @click="navigateToEdit">✏️</view>
+      </view>
+
+      <!-- 完善资料提示 -->
+      <view class="info-tip-card" v-if="userInfo.completion_rate <100">
+        <view class="tip-content">
+          <text class="tip-text">完善您的背景信息，AI 导师将能提供更精准的院校匹配建议。</text>
+          <button class="tip-button" @click="navigateToCreateProfile">继续完善资料</button>
+        </view>
+      </view>
+
+      <!-- 功能菜单 -->
+      <view class="menu-section">
+        <view class="menu-item" @click="navigateTo('myApplications')">
+          <view class="menu-icon">📋</view>
+          <text class="menu-label">我的申请</text>
+          <view class="menu-arrow">›</view>
+        </view>
+
+        <view class="menu-item" @click="navigateTo('favorites')">
+          <view class="menu-icon">⭐</view>
+          <text class="menu-label">收藏院校</text>
+          <view class="menu-badge">12</view>
+          <view class="menu-arrow">›</view>
+        </view>
+
+        <view class="menu-item" @click="navigateTo('notifications')">
+          <view class="menu-icon">🔔</view>
+          <text class="menu-label">消息通知</text>
+          <view class="menu-badge">3</view>
+          <view class="menu-arrow">›</view>
+        </view>
+
+        <view class="menu-item" @click="navigateTo('settings')">
+          <view class="menu-icon">⚙️</view>
+          <text class="menu-label">设置</text>
+          <view class="menu-arrow">›</view>
+        </view>
+      </view>
+
+      <!-- 数据统计 -->
+      <view class="stats-section">
+        <text class="section-title">申请进度统计</text>
+        <view class="stats-grid">
+          <view class="stat-item">
+            <text class="stat-number">3</text>
+            <text class="stat-label">冲刺院校</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-number">4</text>
+            <text class="stat-label">稳妥院校</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-number">3</text>
+            <text class="stat-label">保底院校</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- AI 功能入口 -->
+      <view class="ai-section">
+        <view class="ai-card">
+          <view class="ai-header">
+            <text class="ai-tag">AI Powered</text>
+            <text class="ai-title">智能选校顾问</text>
+          </view>
+          <text class="ai-desc">基于 50,000+ 真实录取案例，为您量身定制留学方案</text>
+          <button class="ai-button" @click="startAIAssessment">开始智能测评</button>
+        </view>
+      </view>
+
+      <!-- 帮助与支持 -->
+      <view class="help-section">
+        <text class="section-title">支持与帮助</text>
+        <view class="help-buttons">
+          <button class="help-button" @click="contactSupport">联系客服</button>
+          <button class="help-button" @click="giveFeedback">意见反馈</button>
+          <button class="help-button" @click="aboutUs">关于我们</button>
+        </view>
+      </view>
+
+      <!-- 退出登录 -->
+      <view class="logout-section">
+        <button class="logout-button" @click="handleLogout">退出登录</button>
+      </view>
+    </scroll-view>
+  </view>
+</template>
+
+<script>
+import request from '@/utils/request.js';
+import { profileAPI } from '@/api/index.js';
+
+export default {
+  data() {
+    return {
+      safeAreaBottom: '120rpx',
+      userInfo: {
+        nickName: '',
+        avatarUrl: '',
+        email: '',
+        completion_rate: 0
+      },
+      isLoggedIn: false,
+      profileCompletion: {
+        completed_steps: 0,
+        total_steps: 4,
+        completion_rate: 0
+      }
+    };
+  },
+  onLoad() {
+    this.calculateSafeArea();
+    this.getUserInfo();
+    this.getProfileCompletion();
+  },
+  onShow() {
+    // 页面显示时重新获取用户资料完成度（可能在其他页面修改了资料）
+    this.getProfileCompletion();
+  },
+  methods: {
+    calculateSafeArea() {
+      // 安全区域适配
+      const systemInfo = uni.getSystemInfoSync();
+      const safeArea = systemInfo.safeArea;
+      if (safeArea) {
+        const bottom = systemInfo.screenHeight - safeArea.bottom;
+        this.safeAreaBottom = bottom + 120 + 'rpx';
+      }
+    },
+
+    // 获取用户信息
+    async getUserInfo() {
+      try {
+        const response = await request.get('/user/info');
+        if (response.code === 0 && response.data) {
+          const userData = response.data;
+          // 更新用户信息，注意接口返回的字段名是 nickname 和 avatar
+          this.userInfo = {
+            completion_rate: userData.completion_rate || 0,
+            nickName: userData.nickname || this.userInfo.nickName,
+            avatarUrl: userData.avatar || this.userInfo.avatarUrl,
+            email: this.userInfo.email // email字段接口未返回，保持原值
+          };
+        }
+      } catch (error) {
+        console.error('获取用户信息失败:', error);
+        // 如果接口调用失败，使用本地存储的用户信息
+        if (!this.isLoggedIn) {
+          this.userInfo = {
+            nickName: '未登录',
+            avatarUrl: '/static/logo.jpeg',
+            email: '请先登录'
+          };
+        }
+      }
+    },
+
+    // 获取用户资料完成度
+    async getProfileCompletion() {
+      try {
+        const response = await profileAPI.getCompletion();
+        if (response.code === 0 && response.data) {
+          this.profileCompletion = {
+            completed_steps: response.data.completed_steps || 0,
+            total_steps: response.data.total_steps || 4,
+            completion_rate: response.data.completion_rate || 0
+          };
+          // 同时更新用户信息中的完成度
+          this.userInfo.completion_rate = this.profileCompletion.completion_rate;
+        } else {
+          console.error('获取资料完成度失败:', response.message);
+          this.showError('获取资料完成度失败');
+        }
+      } catch (error) {
+        console.error('获取资料完成度异常:', error);
+        this.showError('网络请求失败，请检查网络连接');
+      }
+    },
+
+    // 显示错误提示
+    showError(message) {
+      uni.showToast({
+        title: message,
+        icon: 'none',
+        duration: 2000
+      });
+    },
+
+    navigateToEdit() {
+      uni.navigateTo({
+        url: '/pages/profile/create-profile'
+      });
+    },
+
+    navigateTo(page) {
+      const routes = {
+        myApplications: '/pages/report/report',
+        favorites: '/pages/report/report',
+        notifications: '/pages/chat/chat',
+        settings: '/pages/profile/settings'
+      };
+
+      uni.navigateTo({
+        url: routes[page] || '/pages/home/home'
+      });
+    },
+
+    startAIAssessment() {
+      uni.navigateTo({
+        url: '/pages/chat/chat'
+      });
+    },
+
+    contactSupport() {
+      uni.makePhoneCall({
+        phoneNumber: '400-123-4567'
+      });
+    },
+
+    giveFeedback() {
+      uni.navigateTo({
+        url: '/pages/feedback/feedback'
+      });
+    },
+
+    aboutUs() {
+      uni.navigateTo({
+        url: '/pages/about/about'
+      });
+    },
+
+    navigateToCreateProfile() {
+      uni.navigateTo({
+        url: '/pages/profile/create-profile'
+      });
+    },
+
+    handleLogout() {
+      uni.showModal({
+        title: '确认退出',
+        content: '确定要退出登录吗？',
+        success: (res) => {
+          if (res.confirm) {
+            this.logout();
+          }
+        }
+      });
+    },
+
+    logout() {
+      uni.showModal({
+        title: '确认退出',
+        content: '确定要退出登录吗？',
+        success: (res) => {
+          if (res.confirm) {
+            // 清除登录状态
+            uni.removeStorageSync('userToken');
+            uni.removeStorageSync('userInfo');
+
+            // 重置用户信息
+            this.userInfo = {
+              nickName: '',
+              avatarUrl: '',
+              email: ''
+            };
+            this.isLoggedIn = false;
+
+            uni.showToast({
+              title: '退出成功',
+              icon: 'success'
+            });
+
+            // 跳转到登录页
+            setTimeout(() => {
+              uni.reLaunch({
+                url: '/pages/index/index'
+              });
+            }, 1500);
+          }
+        }
+      });
+    }
+  }
+}
+</script>
+
+<style>
+.profile-container {
+  flex: 1;
+  background: linear-gradient(180deg, #F7F9FC 0%, #FFFFFF 100%);
+  min-height: 100vh;
+}
+
+/* 导航栏样式 */
+.nav-bar {
+  background: #FFFFFF;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+  padding: 32rpx 48rpx;
+  backdrop-filter: blur(20rpx);
+}
+
+.nav-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #191C1E;
+  font-family: 'WenQuanYi Zen Hei';
+}
+
+.nav-spacer {
+  width: 36rpx;
+}
+
+/* 内容区域 */
+.profile-content {
+  flex: 1;
+  padding: 32rpx 24rpx;
+  box-sizing: border-box;
+}
+
+/* 安全区域适配 */
+.safe-area {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* 用户信息卡片 */
+.user-card {
+  background: #FFFFFF;
+  border-radius: 32rpx;
+  padding: 32rpx;
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 107, 92, 0.08);
+  border: 1rpx solid rgba(0, 107, 92, 0.1);
+  box-sizing: border-box;
+}
+
+.user-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 9999rpx;
+  overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 9999rpx;
+}
+
+.avatar-badge {
+  position: absolute;
+  bottom: -4rpx;
+  right: -4rpx;
+  background: linear-gradient(145deg, #00BFA5 0%, #006B5C 100%);
+  color: #FFFFFF;
+  font-size: 20rpx;
+  font-weight: 800;
+  padding: 4rpx 12rpx;
+  border-radius: 9999rpx;
+  border: 2rpx solid #FFFFFF;
+}
+
+.user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.user-name {
+  font-size: 32rpx;
+  font-weight: 800;
+  color: #191C1E;
+  font-family: 'WenQuanYi Zen Hei';
+}
+
+.user-email {
+  font-size: 24rpx;
+  color: #64748B;
+  font-weight: 500;
+}
+
+.user-progress {
+  margin-top: 8rpx;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6rpx;
+  background: #F1F5F9;
+  border-radius: 9999rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00BFA5 0%, #006B5C 100%);
+  border-radius: 9999rpx;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 22rpx;
+  color: #64748B;
+  margin-top: 6rpx;
+  font-weight: 500;
+}
+
+.edit-button {
+  font-size: 28rpx;
+  color: #006B5C;
+  padding: 12rpx;
+  background: rgba(0, 107, 92, 0.1);
+  border-radius: 9999rpx;
+  transition: all 0.2s ease;
+}
+
+.edit-button:active {
+  background: rgba(0, 107, 92, 0.2);
+  transform: scale(0.95);
+}
+
+/* 完善资料提示 */
+.info-tip-card {
+  background: linear-gradient(145deg, #006B5C 0%, #00BFA5 100%);
+  border-radius: 24rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 107, 92, 0.2);
+  box-sizing: border-box;
+}
+
+.tip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.tip-text {
+  font-size: 26rpx;
+  color: #FFFFFF;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.tip-button {
+  background: rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
+  border: none;
+  padding: 16rpx 24rpx;
+  border-radius: 12rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  backdrop-filter: blur(10rpx);
+}
+
+.tip-button:active {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 功能菜单 */
+.menu-section {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  margin-bottom: 24rpx;
+  overflow: hidden;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.06);
+  border: 1rpx solid rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 32rpx;
+  border-bottom: 1rpx solid #F1F5F9;
+  transition: background-color 0.2s ease;
+}
+
+.menu-item:active {
+  background-color: #F8FAFC;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-icon {
+  font-size: 36rpx;
+  margin-right: 20rpx;
+  width: 40rpx;
+  text-align: center;
+  color: #006B5C;
+}
+
+.menu-label {
+  flex: 1;
+  font-size: 28rpx;
+  color: #191C1E;
+  font-weight: 600;
+}
+
+.menu-badge {
+  background: #FF4444;
+  color: #FFFFFF;
+  font-size: 22rpx;
+  font-weight: 700;
+  padding: 4rpx 12rpx;
+  border-radius: 9999rpx;
+  margin-right: 12rpx;
+}
+
+.menu-arrow {
+  font-size: 32rpx;
+  color: #94A3B8;
+  font-weight: bold;
+}
+
+/* 数据统计 */
+.stats-section {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.06);
+  border: 1rpx solid rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #191C1E;
+  margin-bottom: 24rpx;
+  display: block;
+  font-family: 'WenQuanYi Zen Hei';
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16rpx;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24rpx;
+  background: #F8FAFC;
+  border-radius: 16rpx;
+  border: 1rpx solid #E2E8F0;
+}
+
+.stat-number {
+  font-size: 36rpx;
+  font-weight: 800;
+  color: #006B5C;
+  margin-bottom: 8rpx;
+}
+
+.stat-label {
+  font-size: 22rpx;
+  color: #64748B;
+  font-weight: 500;
+}
+
+/* AI 功能入口 */
+.ai-section {
+  margin-bottom: 24rpx;
+}
+
+.ai-card {
+  background: linear-gradient(145deg, #006B5C 0%, #00BFA5 100%);
+  border-radius: 24rpx;
+  padding: 24rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 107, 92, 0.3);
+  box-sizing: border-box;
+}
+
+.ai-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  margin-bottom: 16rpx;
+}
+
+.ai-tag {
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 700;
+  letter-spacing: 1rpx;
+  text-transform: uppercase;
+}
+
+.ai-title {
+  font-size: 32rpx;
+  font-weight: 800;
+  color: #FFFFFF;
+  font-family: 'WenQuanYi Zen Hei';
+}
+
+.ai-desc {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.4;
+  margin-bottom: 24rpx;
+  font-weight: 500;
+}
+
+.ai-button {
+  background: rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
+  border: none;
+  padding: 20rpx 32rpx;
+  border-radius: 9999rpx;
+  font-size: 26rpx;
+  font-weight: 700;
+  backdrop-filter: blur(10rpx);
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+}
+
+.ai-button:active {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 帮助与支持 */
+.help-section {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.06);
+  border: 1rpx solid rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.help-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16rpx;
+}
+
+.help-button {
+  background: #F8FAFC;
+  color: #64748B;
+  border: 1rpx solid #E2E8F0;
+  padding: 20rpx;
+  border-radius: 12rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.help-button:active {
+  background: #F1F5F9;
+  transform: scale(0.98);
+}
+
+/* 退出登录 */
+.logout-section {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.06);
+  border: 1rpx solid rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.logout-button {
+  background: linear-gradient(145deg, #FF4444 0%, #CC0000 100%);
+  color: #FFFFFF;
+  border: none;
+  padding: 24rpx;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  text-align: center;
+  width: 100%;
+  box-shadow: 0 4rpx 12rpx rgba(255, 68, 68, 0.3);
+  transition: all 0.2s ease;
+}
+
+.logout-button:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 8rpx rgba(255, 68, 68, 0.2);
+}
+
+</style>

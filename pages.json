@@ -3,31 +3,93 @@
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "登录"
+				"navigationBarTitleText": "登录",
+				"navigationStyle": "custom",
+				"navigationBarTextStyle": "white"
 			}
 		},
 		{
 			"path": "pages/home/home",
 			"style": {
-				"navigationBarTitleText": "学生助手",
-				"navigationBarBackgroundColor": "#667eea",
-				"navigationBarTextStyle": "white"
+				"navigationBarTitleText": "首页",
+				"navigationStyle": "custom"
 			}
 		},
 		{
-			"path": "pages/user-info/user-info",
+			"path": "pages/chat/chat",
 			"style": {
-				"navigationBarTitleText": "留学信息统计",
-				"navigationBarBackgroundColor": "#667eea",
-				"navigationBarTextStyle": "white"
+				"navigationBarTitleText": "AI对话",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/report/report",
+			"style": {
+				"navigationBarTitleText": "选校报告",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/profile/profile",
+			"style": {
+				"navigationBarTitleText": "个人中心",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/profile/create-profile",
+			"style": {
+				"navigationBarTitleText": "完善个人信息",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/university/detail",
+			"style": {
+				"navigationBarTitleText": "院校详情",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/report/detail",
+			"style": {
+				"navigationBarTitleText": "报告详情",
+				"navigationStyle": "custom"
 			}
 		}
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "uni-app",
+		"navigationBarTitleText": "留学助手",
 		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8"
+		"backgroundColor": "#F8F8F8",
+		"app-plus": {
+			"titleNView": false
+		}
+	},
+	"tabBar": {
+		"color": "#999999",
+		"selectedColor": "#007AFF",
+		"backgroundColor": "#FFFFFF",
+		"borderStyle": "black",
+		"list": [
+			{
+				"pagePath": "pages/home/home",
+				"text": "首页"
+			},
+			{
+				"pagePath": "pages/report/report",
+				"text": "报告"
+			},
+			{
+				"pagePath": "pages/chat/chat",
+				"text": "对话"
+			},
+			{
+				"pagePath": "pages/profile/profile",
+				"text": "个人"
+			}
+		]
 	},
 	"uniIdRouter": {}
 }
