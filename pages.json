@@ -56,6 +56,13 @@
 				"navigationBarTitleText": "报告详情",
 				"navigationStyle": "custom"
 			}
+		},
+		{
+			"path": "pages/consultation/consultation",
+			"style": {
+				"navigationBarTitleText": "预约咨询",
+				"navigationStyle": "custom"
+			}
 		}
 	],
 	"globalStyle": {

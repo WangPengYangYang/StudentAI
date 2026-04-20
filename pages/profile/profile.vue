@@ -4,7 +4,6 @@
     <view class="nav-bar">
       <view class="nav-content">
         <text class="nav-title">个人中心</text>
-        <view class="nav-spacer"></view>
       </view>
     </view>
 
@@ -13,11 +12,11 @@
       <view class="user-card">
         <view class="user-avatar">
           <image :src="userInfo.avatarUrl || '/static/logo.jpeg'" class="avatar-image"></image>
-          <view class="avatar-badge">{{ userInfo.completion_rate }}</view>
+          <view class="avatar-badge">{{ userInfo.completion_rate }}%</view>
         </view>
         <view class="user-info">
           <text class="user-name">{{ userInfo.nickName || '未登录' }}</text>
-          <text class="user-email">{{ userInfo.email || '请先登录' }}</text>
+          <text class="user-email">{{ userInfo.email || 'test@example.com' }}</text>
           <view class="user-progress">
             <view class="progress-bar">
               <view class="progress-fill" :style="{width: userInfo.completion_rate + '%'}"></view>
@@ -25,84 +24,55 @@
             <text class="progress-text">个人资料完成度 {{ userInfo.completion_rate }}%</text>
           </view>
         </view>
-        <view class="edit-button" @click="navigateToEdit">✏️</view>
+        <view class="edit-button" @click="navigateTo('/pages/profile/create-profile')">✏️</view>
       </view>
 
-      <!-- 完善资料提示 -->
-      <view class="info-tip-card" v-if="userInfo.completion_rate <100">
-        <view class="tip-content">
-          <text class="tip-text">完善您的背景信息，AI 导师将能提供更精准的院校匹配建议。</text>
-          <button class="tip-button" @click="navigateToCreateProfile">继续完善资料</button>
+      <!-- 预约咨询功能入口 -->
+      <view class="consultation-card" @click="navigateTo('/pages/consultation/consultation')">
+        <view class="consultation-content">
+          <view class="menu-icon">⏰</view>
+          <view class="consultation-info">
+            <text class="consultation-title">预约 1对1 咨询</text>
+            <text class="consultation-desc">专业留学顾问为您提供个性化指导</text>
+          </view>
+          <view class="consultation-arrow">›</view>
         </view>
       </view>
 
       <!-- 功能菜单 -->
+      <view class="section-title">工作区</view>
       <view class="menu-section">
-        <view class="menu-item" @click="navigateTo('myApplications')">
+        <view class="menu-item" @click="navigateTo('/pages/report/report')">
           <view class="menu-icon">📋</view>
-          <text class="menu-label">我的申请</text>
+          <text class="menu-label">我的报告</text>
           <view class="menu-arrow">›</view>
         </view>
 
-        <view class="menu-item" @click="navigateTo('favorites')">
+        <view class="menu-item" @click="navigateTo('/pages/report/report')">
           <view class="menu-icon">⭐</view>
           <text class="menu-label">收藏院校</text>
           <view class="menu-badge">12</view>
           <view class="menu-arrow">›</view>
         </view>
-
-        <view class="menu-item" @click="navigateTo('notifications')">
-          <view class="menu-icon">🔔</view>
-          <text class="menu-label">消息通知</text>
-          <view class="menu-badge">3</view>
-          <view class="menu-arrow">›</view>
-        </view>
-
-        <view class="menu-item" @click="navigateTo('settings')">
-          <view class="menu-icon">⚙️</view>
-          <text class="menu-label">设置</text>
-          <view class="menu-arrow">›</view>
-        </view>
-      </view>
-
-      <!-- 数据统计 -->
-      <view class="stats-section">
-        <text class="section-title">申请进度统计</text>
-        <view class="stats-grid">
-          <view class="stat-item">
-            <text class="stat-number">3</text>
-            <text class="stat-label">冲刺院校</text>
-          </view>
-          <view class="stat-item">
-            <text class="stat-number">4</text>
-            <text class="stat-label">稳妥院校</text>
-          </view>
-          <view class="stat-item">
-            <text class="stat-number">3</text>
-            <text class="stat-label">保底院校</text>
-          </view>
-        </view>
-      </view>
-
-      <!-- AI 功能入口 -->
-      <view class="ai-section">
-        <view class="ai-card">
-          <view class="ai-header">
-            <text class="ai-tag">AI Powered</text>
-            <text class="ai-title">智能选校顾问</text>
-          </view>
-          <text class="ai-desc">基于 50,000+ 真实录取案例，为您量身定制留学方案</text>
-          <button class="ai-button" @click="startAIAssessment">开始智能测评</button>
-        </view>
       </view>
 
       <!-- 帮助与支持 -->
-      <view class="help-section">
-        <text class="section-title">支持与帮助</text>
-        <view class="help-buttons">
-          <button class="help-button" @click="contactSupport">联系客服</button>
-          <button class="help-button" @click="giveFeedback">意见反馈</button>
-          <button class="help-button" @click="aboutUs">关于我们</button>
+      <view class="section-title">支持与帮助</view>
+      <view class="menu-section">
+        <view class="menu-item" @click="contactSupport">
+          <view class="menu-icon">📞</view>
+          <text class="menu-label">联系客服</text>
+          <view class="menu-arrow">›</view>
+        </view>
+        <view class="menu-item" @click="navigateTo('/pages/feedback/feedback')">
+          <view class="menu-icon">💬</view>
+          <text class="menu-label">意见反馈</text>
+          <view class="menu-arrow">›</view>
+        </view>
+        <view class="menu-item" @click="navigateTo('/pages/about/about')">
+          <view class="menu-icon">ℹ️</view>
+          <text class="menu-label">关于我们</text>
+          <view class="menu-arrow">›</view>
         </view>
       </view>
 
@@ -115,8 +85,7 @@
 </template>
 
 <script>
-import request from '@/utils/request.js';
-import { profileAPI } from '@/api/index.js';
+import { profileAPI, userAPI } from "@/api/index.js";
 
 export default {
   data() {
@@ -128,7 +97,6 @@ export default {
         email: '',
         completion_rate: 0
       },
-      isLoggedIn: false,
       profileCompletion: {
         completed_steps: 0,
         total_steps: 4,
@@ -138,16 +106,14 @@ export default {
   },
   onLoad() {
     this.calculateSafeArea();
-    this.getUserInfo();
-    this.getProfileCompletion();
   },
   onShow() {
-    // 页面显示时重新获取用户资料完成度（可能在其他页面修改了资料）
+    // 页面显示时只重新获取用户信息，资料完成度在onLoad中已获取
+    this.getUserInfo();
     this.getProfileCompletion();
   },
   methods: {
     calculateSafeArea() {
-      // 安全区域适配
       const systemInfo = uni.getSystemInfoSync();
       const safeArea = systemInfo.safeArea;
       if (safeArea) {
@@ -156,111 +122,43 @@ export default {
       }
     },
 
-    // 获取用户信息
     async getUserInfo() {
       try {
-        const response = await request.get('/user/info');
+        const response = await userAPI.getUserInfo();
         if (response.code === 0 && response.data) {
           const userData = response.data;
-          // 更新用户信息，注意接口返回的字段名是 nickname 和 avatar
           this.userInfo = {
-            completion_rate: userData.completion_rate || 0,
             nickName: userData.nickname || this.userInfo.nickName,
             avatarUrl: userData.avatar || this.userInfo.avatarUrl,
-            email: this.userInfo.email // email字段接口未返回，保持原值
+            email: this.userInfo.email
           };
         }
       } catch (error) {
         console.error('获取用户信息失败:', error);
-        // 如果接口调用失败，使用本地存储的用户信息
-        if (!this.isLoggedIn) {
-          this.userInfo = {
-            nickName: '未登录',
-            avatarUrl: '/static/logo.jpeg',
-            email: '请先登录'
-          };
-        }
       }
     },
-
     // 获取用户资料完成度
     async getProfileCompletion() {
-      try {
-        const response = await profileAPI.getCompletion();
-        if (response.code === 0 && response.data) {
-          this.profileCompletion = {
-            completed_steps: response.data.completed_steps || 0,
-            total_steps: response.data.total_steps || 4,
-            completion_rate: response.data.completion_rate || 0
-          };
-          // 同时更新用户信息中的完成度
-          this.userInfo.completion_rate = this.profileCompletion.completion_rate;
-        } else {
-          console.error('获取资料完成度失败:', response.message);
-          this.showError('获取资料完成度失败');
-        }
-      } catch (error) {
-        console.error('获取资料完成度异常:', error);
-        this.showError('网络请求失败，请检查网络连接');
-      }
-    },
+  try {
+    const response = await profileAPI.getCompletion();
+    if (response.code === 0 && response.data) {
+      this.userInfo.completion_rate = response.data.completion_rate || 0;
+    } else {
+      console.error('获取资料完成度失败:', response.message);
+      uni.showToast({ title: '获取资料完成度失败', icon: 'none' });
+    }
+  } catch (error) {
+    console.error('获取资料完成度异常:', error);
+    uni.showToast({ title: '网络请求失败，请检查网络连接', icon: 'none' });
+  }
+},
 
-    // 显示错误提示
-    showError(message) {
-      uni.showToast({
-        title: message,
-        icon: 'none',
-        duration: 2000
-      });
-    },
-
-    navigateToEdit() {
-      uni.navigateTo({
-        url: '/pages/profile/create-profile'
-      });
-    },
-
-    navigateTo(page) {
-      const routes = {
-        myApplications: '/pages/report/report',
-        favorites: '/pages/report/report',
-        notifications: '/pages/chat/chat',
-        settings: '/pages/profile/settings'
-      };
-
-      uni.navigateTo({
-        url: routes[page] || '/pages/home/home'
-      });
-    },
-
-    startAIAssessment() {
-      uni.navigateTo({
-        url: '/pages/chat/chat'
-      });
+    navigateTo(url) {
+      uni.navigateTo({ url });
     },
 
     contactSupport() {
-      uni.makePhoneCall({
-        phoneNumber: '400-123-4567'
-      });
-    },
-
-    giveFeedback() {
-      uni.navigateTo({
-        url: '/pages/feedback/feedback'
-      });
-    },
-
-    aboutUs() {
-      uni.navigateTo({
-        url: '/pages/about/about'
-      });
-    },
-
-    navigateToCreateProfile() {
-      uni.navigateTo({
-        url: '/pages/profile/create-profile'
-      });
+      uni.makePhoneCall({ phoneNumber: '400-123-4567' });
     },
 
     handleLogout() {
@@ -269,40 +167,13 @@ export default {
         content: '确定要退出登录吗？',
         success: (res) => {
           if (res.confirm) {
-            this.logout();
-          }
-        }
-      });
-    },
-
-    logout() {
-      uni.showModal({
-        title: '确认退出',
-        content: '确定要退出登录吗？',
-        success: (res) => {
-          if (res.confirm) {
-            // 清除登录状态
             uni.removeStorageSync('userToken');
             uni.removeStorageSync('userInfo');
+            this.userInfo = { nickName: '', avatarUrl: '', email: '', completion_rate: 0 };
 
-            // 重置用户信息
-            this.userInfo = {
-              nickName: '',
-              avatarUrl: '',
-              email: ''
-            };
-            this.isLoggedIn = false;
-
-            uni.showToast({
-              title: '退出成功',
-              icon: 'success'
-            });
-
-            // 跳转到登录页
+            uni.showToast({ title: '退出成功', icon: 'success' });
             setTimeout(() => {
-              uni.reLaunch({
-                url: '/pages/index/index'
-              });
+              uni.reLaunch({ url: '/pages/index/index' });
             }, 1500);
           }
         }
@@ -338,10 +209,6 @@ export default {
   font-weight: 700;
   color: #191C1E;
   font-family: 'WenQuanYi Zen Hei';
-}
-
-.nav-spacer {
-  width: 36rpx;
 }
 
 /* 内容区域 */
@@ -458,44 +325,6 @@ export default {
   transform: scale(0.95);
 }
 
-/* 完善资料提示 */
-.info-tip-card {
-  background: linear-gradient(145deg, #006B5C 0%, #00BFA5 100%);
-  border-radius: 24rpx;
-  padding: 24rpx;
-  margin-bottom: 24rpx;
-  box-shadow: 0 8rpx 24rpx rgba(0, 107, 92, 0.2);
-  box-sizing: border-box;
-}
-
-.tip-content {
-  display: flex;
-  flex-direction: column;
-  gap: 20rpx;
-}
-
-.tip-text {
-  font-size: 26rpx;
-  color: #FFFFFF;
-  line-height: 1.5;
-  font-weight: 500;
-}
-
-.tip-button {
-  background: rgba(255, 255, 255, 0.2);
-  color: #FFFFFF;
-  border: none;
-  padding: 16rpx 24rpx;
-  border-radius: 12rpx;
-  font-size: 26rpx;
-  font-weight: 600;
-  backdrop-filter: blur(10rpx);
-}
-
-.tip-button:active {
-  background: rgba(255, 255, 255, 0.3);
-}
-
 /* 功能菜单 */
 .menu-section {
   background: #FFFFFF;
@@ -554,174 +383,74 @@ export default {
   font-weight: bold;
 }
 
-/* 数据统计 */
-.stats-section {
-  background: #FFFFFF;
+.consultation-card {
+  background: linear-gradient(145deg, rgba(0, 107, 92, 0.35) 0%, rgba(0, 191, 165, 0.35) 100%);
   border-radius: 24rpx;
-  padding: 24rpx;
-  margin-bottom: 24rpx;
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.06);
-  border: 1rpx solid rgba(0, 0, 0, 0.05);
+  padding: 32rpx;
   box-sizing: border-box;
+  margin: 24rpx 0;
+  box-shadow: 0 8rpx 32rpx rgba(0, 107, 92, 0.08);
+  border: 1rpx solid rgba(0, 107, 92, 0.1);
+  transition: all 0.3s ease;
 }
 
-.section-title {
-  font-size: 28rpx;
+.consultation-card:active {
+  transform: scale(0.98);
+  background: #F8FAFC;
+}
+
+.consultation-content {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+.consultation-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.consultation-title {
+  font-size: 32rpx;
   font-weight: 700;
   color: #191C1E;
-  margin-bottom: 24rpx;
-  display: block;
   font-family: 'WenQuanYi Zen Hei';
 }
 
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16rpx;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 24rpx;
-  background: #F8FAFC;
-  border-radius: 16rpx;
-  border: 1rpx solid #E2E8F0;
-}
-
-.stat-number {
-  font-size: 36rpx;
-  font-weight: 800;
-  color: #006B5C;
-  margin-bottom: 8rpx;
-}
-
-.stat-label {
-  font-size: 22rpx;
+.consultation-desc {
+  font-size: 24rpx;
   color: #64748B;
   font-weight: 500;
 }
 
-/* AI 功能入口 */
-.ai-section {
-  margin-bottom: 24rpx;
+.consultation-arrow {
+  font-size: 36rpx;
+  color: #94A3B8;
+  font-weight: bold;
 }
-
-.ai-card {
-  background: linear-gradient(145deg, #006B5C 0%, #00BFA5 100%);
-  border-radius: 24rpx;
-  padding: 24rpx;
-  box-shadow: 0 8rpx 32rpx rgba(0, 107, 92, 0.3);
-  box-sizing: border-box;
-}
-
-.ai-header {
-  display: flex;
-  flex-direction: column;
-  gap: 8rpx;
-  margin-bottom: 16rpx;
-}
-
-.ai-tag {
-  font-size: 20rpx;
-  color: rgba(255, 255, 255, 0.8);
-  font-weight: 700;
-  letter-spacing: 1rpx;
-  text-transform: uppercase;
-}
-
-.ai-title {
+.section-title {
   font-size: 32rpx;
-  font-weight: 800;
-  color: #FFFFFF;
-  font-family: 'WenQuanYi Zen Hei';
-}
-
-.ai-desc {
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.9);
-  line-height: 1.4;
+  color: rgba(0, 0, 0, 0.65);
   margin-bottom: 24rpx;
-  font-weight: 500;
 }
 
-.ai-button {
-  background: rgba(255, 255, 255, 0.2);
-  color: #FFFFFF;
-  border: none;
-  padding: 20rpx 32rpx;
-  border-radius: 9999rpx;
-  font-size: 26rpx;
-  font-weight: 700;
-  backdrop-filter: blur(10rpx);
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
-}
-
-.ai-button:active {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-/* 帮助与支持 */
-.help-section {
-  background: #FFFFFF;
-  border-radius: 24rpx;
-  padding: 24rpx;
-  margin-bottom: 24rpx;
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.06);
-  border: 1rpx solid rgba(0, 0, 0, 0.05);
-  box-sizing: border-box;
-}
-
-.help-buttons {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16rpx;
-}
-
-.help-button {
-  background: #F8FAFC;
+.logout-button {
+  background: transparent;
   color: #64748B;
   border: 1rpx solid #E2E8F0;
   padding: 20rpx;
   border-radius: 12rpx;
-  font-size: 24rpx;
+  font-size: 26rpx;
   font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.help-button:active {
-  background: #F1F5F9;
-  transform: scale(0.98);
-}
-
-/* 退出登录 */
-.logout-section {
-  background: #FFFFFF;
-  border-radius: 24rpx;
-  padding: 24rpx;
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.06);
-  border: 1rpx solid rgba(0, 0, 0, 0.05);
-  box-sizing: border-box;
-}
-
-.logout-button {
-  background: linear-gradient(145deg, #FF4444 0%, #CC0000 100%);
-  color: #FFFFFF;
-  border: none;
-  padding: 24rpx;
-  border-radius: 16rpx;
-  font-size: 28rpx;
-  font-weight: 600;
   text-align: center;
   width: 100%;
-  box-shadow: 0 4rpx 12rpx rgba(255, 68, 68, 0.3);
   transition: all 0.2s ease;
 }
 
 .logout-button:active {
-  transform: scale(0.98);
-  box-shadow: 0 2rpx 8rpx rgba(255, 68, 68, 0.2);
+  background: #F8FAFC;
+  border-color: #CBD5E1;
 }
 
 </style>
