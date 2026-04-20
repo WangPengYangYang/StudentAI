@@ -5,7 +5,7 @@
       <view class="nav-content">
         <view class="agent-info">
           <view class="avatar-container">
-            <view class="agent-avatar"></view>
+            <image class="agent-avatar" src="/static/logo.gif"></image>
           </view>
           <view class="agent-details">
             <text class="agent-name">Scholar AI</text>
@@ -14,8 +14,7 @@
         </view>
         <view class="nav-actions">
           <view class="nav-button" @click="showConversationList">📋</view>
-          <view class="nav-button" @click="showSettings">⚙️</view>
-          <view class="user-avatar"></view>
+          <image class="user-avatar" src="/static/logo.jpeg"></image>
         </view>
       </view>
       <view class="nav-divider"></view>
@@ -393,13 +392,6 @@ export default {
       })
     },
 
-    showSettings() {
-      uni.showToast({
-        title: '设置功能开发中',
-        icon: 'none'
-      })
-    },
-
     showAttachmentMenu() {
       uni.showActionSheet({
         itemList: ['图片', '文件', '位置'],
@@ -593,9 +585,8 @@ export default {
 }
 
 .user-avatar {
-  width: 60rpx;
-  height: 60rpx;
-  background: #E0E0E0;
+  width: 80rpx;
+  height: 80rpx;
   border-radius: 9999rpx;
 }
 

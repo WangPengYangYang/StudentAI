@@ -32,7 +32,7 @@
           </view>
 
           <view class="content">
-            <text class="desc">{{ report.description }}</text>
+            <view class="desc">{{ report.description }}</view>
 
             <view class="stats">
               <view v-for="stat in statsConfig" :key="stat.key" class="stat">
@@ -339,6 +339,11 @@ export default {
   font-weight: 600;
   padding: 4rpx 12rpx;
   border-radius: 12rpx;
+}
+
+.type.reach {
+  background: rgba(255, 107, 107, 0.1);
+  color: #FF6B6B;
 }
 
 .more {

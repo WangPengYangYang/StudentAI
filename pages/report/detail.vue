@@ -24,9 +24,9 @@
     <scroll-view v-else class="report-content" scroll-y="true">
       <!-- 报告头部 -->
       <view class="report-header">
-        <text class="report-title">{{ report.title }}</text>
-        <text class="report-date">生成时间：{{ formatDate(report.generated_at) }}</text>
-        <text class="report-desc">{{ report.description }}</text>
+        <view class="report-title">{{ report.title }}</view>
+        <view class="report-date">生成时间：{{ formatDate(report.generated_at) }}</view>
+        <view class="report-desc">{{ report.description }}</view>
       </view>
 
       <!-- 报告统计 -->
@@ -46,9 +46,8 @@
       </view>
 
       <!-- 院校列表 -->
+      <view class="section-title">推荐院校列表</view>
       <view class="school-section">
-        <text class="section-title">推荐院校列表</text>
-
         <!-- 使用动态组件减少重复代码 -->
         <SchoolCategory
           v-if="reachSchools.length > 0"
