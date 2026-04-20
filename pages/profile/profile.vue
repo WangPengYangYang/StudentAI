@@ -59,11 +59,6 @@
       <!-- 帮助与支持 -->
       <view class="section-title">支持与帮助</view>
       <view class="menu-section">
-        <view class="menu-item" @click="contactSupport">
-          <view class="menu-icon">📞</view>
-          <text class="menu-label">联系客服</text>
-          <view class="menu-arrow">›</view>
-        </view>
         <view class="menu-item" @click="navigateTo('/pages/feedback/feedback')">
           <view class="menu-icon">💬</view>
           <text class="menu-label">意见反馈</text>
@@ -157,10 +152,6 @@ export default {
       uni.navigateTo({ url });
     },
 
-    contactSupport() {
-      uni.makePhoneCall({ phoneNumber: '400-123-4567' });
-    },
-
     handleLogout() {
       uni.showModal({
         title: '确认退出',
@@ -183,7 +174,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .profile-container {
   flex: 1;
   background: linear-gradient(180deg, #F7F9FC 0%, #FFFFFF 100%);
@@ -196,12 +187,6 @@ export default {
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
   padding: 32rpx 48rpx;
   backdrop-filter: blur(20rpx);
-}
-
-.nav-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
 
 .nav-title {

@@ -217,7 +217,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .detail-container {
   min-height: 100vh;
   background: #F7F9FC;

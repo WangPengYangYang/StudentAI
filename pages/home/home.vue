@@ -206,7 +206,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .home-container {
   flex: 1;
   background: #F7F9FC;

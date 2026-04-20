@@ -165,7 +165,7 @@
 	}
 </script>
 
-<style>
+<style scoped>
 .login-container {
   position: relative;
   min-height: 100vh;

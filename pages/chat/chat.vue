@@ -13,8 +13,7 @@
           </view>
         </view>
         <view class="nav-actions">
-          <view class="nav-button" @click="showConversationList">📋</view>
-          <image class="user-avatar" src="/static/logo.jpeg"></image>
+          <image class="nav-button" src="/static/history.svg" @click="showConversationList"></image>
         </view>
       </view>
       <view class="nav-divider"></view>
@@ -414,7 +413,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .chat-container {
   display: flex;
   flex-direction: column;
@@ -518,14 +517,14 @@ export default {
 }
 
 .new-conversation-btn {
-  background: #007AFF;
+  background: linear-gradient(162deg, #006B5C 0%, #00BFA5 100%);
   color: #FFFFFF;
   border: none;
-  padding: 24rpx;
+  padding: 16rpx;
   font-size: 28rpx;
   font-weight: 500;
   margin: 24rpx;
-  border-radius: 16rpx;
+  border-radius: 48rpx;
 }
 
 /* 导航栏样式 */
@@ -581,7 +580,8 @@ export default {
 }
 
 .nav-button {
-  font-size: 36rpx;
+  width: 40rpx;
+  height: 40rpx;
 }
 
 .user-avatar {
