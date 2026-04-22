@@ -103,8 +103,14 @@
 
               <view v-for="field in section.fields" :key="field.key" class="form-item">
                 <text class="item-label">{{field.label}}</text>
-                <component
-                  :is="field.type === 'textarea' ? 'textarea' : 'input'"
+                <textarea
+                  v-if="field.type === 'textarea'"
+                  class="item-input"
+                  :placeholder="field.placeholder"
+                  v-model="item[field.key]"
+                />
+                <input
+                  v-else
                   class="item-input"
                   :type="field.type === 'number' ? 'number' : 'text'"
                   :placeholder="field.placeholder"

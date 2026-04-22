@@ -117,25 +117,9 @@
         <view class="input-field">
           <view class="input-button" @click="showAttachmentMenu">➕</view>
           <input class="chat-input" v-model="inputText" placeholder="输入您的问题..."
-                 @confirm="sendMessage" :focus="isInputFocus" />
-          <view class="send-button" @click="sendMessage" :class="{ disabled: !inputText.trim() }">➤</view>
+                 @confirm="sendMessage" :focus="isInputFocus" :disabled="isLoading" />
+          <view class="send-button" @click="sendMessage" :class="{ disabled: !inputText.trim() || isLoading }">➤</view>
         </view>
-      </view>
-    </view>
-
-    <!-- 底部导航栏 -->
-    <view class="tab-bar safe-area">
-      <view class="tab-item" :class="{ active: currentTab === 'home' }" @click="switchTab('home')">
-        <view class="tab-icon">🏠</view>
-        <text class="tab-label">首页</text>
-      </view>
-      <view class="tab-item" :class="{ active: currentTab === 'chat' }" @click="switchTab('chat')">
-        <view class="tab-icon">💬</view>
-        <text class="tab-label">对话</text>
-      </view>
-      <view class="tab-item" :class="{ active: currentTab === 'profile' }" @click="switchTab('profile')">
-        <view class="tab-icon">👤</view>
-        <text class="tab-label">我的</text>
       </view>
     </view>
   </view>
@@ -754,7 +738,7 @@ export default {
 /* 底部操作区域 */
 .bottom-actions {
   position: fixed;
-  bottom: 0; /* 固定在底部导航栏上方 */
+  bottom: 80rpx; /* 固定在底部导航栏上方 */
   left: 0;
   right: 0;
   background: #FFFFFF;
@@ -813,37 +797,6 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-/* 底部导航栏 */
-.tab-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #FFFFFF;
-  display: flex;
-  justify-content: space-around;
-  padding: 20rpx 0;
-  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.1);
-  border-top-left-radius: 24rpx;
-  border-top-right-radius: 24rpx;
-}
-
-.tab-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8rpx;
-}
-
-.tab-icon {
-  font-size: 36rpx;
-}
-
-.tab-label {
-  font-size: 22rpx;
-  color: #999999;
 }
 
 .tab-item.active .tab-label {
@@ -910,6 +863,12 @@ export default {
   color: #999999;
 }
 
+.chat-input:disabled {
+  background: #F5F5F5;
+  color: #999999;
+  cursor: not-allowed;
+}
+
 .send-button.disabled {
   background: #CCCCCC !important;
   cursor: not-allowed;
@@ -929,10 +888,5 @@ export default {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-/* 安全区域适配 */
-.safe-area {
-  padding-bottom: env(safe-area-inset-bottom);
 }
 </style>
