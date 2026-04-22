@@ -19,11 +19,11 @@
       <view class="nav-divider"></view>
     </view>
 
-    <!-- 会话列表弹窗 -->
-    <view class="modal-overlay" v-if="showConversationModal" @click="hideConversationModal">
-      <view class="conversation-modal" @click.stop>
-        <view class="modal-header">
-          <text class="modal-title">对话历史</text>
+    <!-- 会话列表抽屉 -->
+    <view class="drawer-overlay" v-if="showConversationModal" @click="hideConversationModal">
+      <view class="conversation-drawer" @click.stop :class="{ 'drawer-open': showConversationModal }">
+        <view class="drawer-header">
+          <text class="drawer-title">对话历史</text>
           <view class="close-button" @click="hideConversationModal">✕</view>
         </view>
         <scroll-view class="conversation-list" scroll-y="true">
@@ -472,39 +472,45 @@ export default {
   background: #F8F9FA;
 }
 
-/* 会话列表弹窗样式 */
-.modal-overlay {
+/* 会话列表抽屉样式 */
+.drawer-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 1000;
 }
 
-.conversation-modal {
-  background: #FFFFFF;
-  border-radius: 24rpx;
+.conversation-drawer {
+  position: fixed;
+  top: 0;
+  right: -100%;
   width: 80%;
-  max-height: 70%;
+  height: 100%;
+  background: #FFFFFF;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: right 0.3s ease-in-out;
+  box-shadow: -4rpx 0 12rpx rgba(0, 0, 0, 0.1);
 }
 
-.modal-header {
+.conversation-drawer.drawer-open {
+  right: 0;
+}
+
+.drawer-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 32rpx;
   border-bottom: 1rpx solid #E0E0E0;
+  background: #FFFFFF;
 }
 
-.modal-title {
+.drawer-title {
   font-size: 32rpx;
   font-weight: 600;
   color: #1A1A1A;
@@ -518,7 +524,7 @@ export default {
 
 .conversation-list {
   flex: 1;
-  max-height: 400rpx;
+  overflow-y: auto;
 }
 
 .conversation-item {
