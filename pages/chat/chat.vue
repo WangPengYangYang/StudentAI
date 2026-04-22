@@ -874,6 +874,35 @@ export default {
   cursor: not-allowed;
 }
 
+/* 流式内容样式 */
+.streaming-content {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.streaming-text {
+  font-size: 28rpx;
+  line-height: 1.6;
+  color: #1A1A1A;
+}
+
+.typing-cursor {
+  width: 2rpx;
+  height: 28rpx;
+  background: #006B5C;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
 /* 消息动画 */
 .message-row {
   animation: fadeInUp 0.3s ease-out;

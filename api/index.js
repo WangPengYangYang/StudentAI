@@ -265,7 +265,7 @@ export const reportAPI = {
    * @param {string} planId - 方案ID
    * @returns {Promise}
    */
-  generateReport: (planId) => request.post(`${BASE_PATH}/reports`, { plan_id: planId }),
+  generateReport: (planId) => request.post(`${BASE_PATH}/plan/generate`, {  }),
 
   /**
    * 获取报告列表
