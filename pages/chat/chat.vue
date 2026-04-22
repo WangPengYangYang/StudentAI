@@ -28,13 +28,16 @@
         </view>
         <scroll-view class="conversation-list" scroll-y="true">
           <view v-for="conversation in conversations" :key="conversation.id"
-                class="conversation-item" @click="selectConversation(conversation)">
-            <view class="conversation-info">
+                class="conversation-item">
+            <view class="conversation-info" @click.stop="selectConversation(conversation)">
               <text class="conversation-title">{{ conversation.title }}</text>
-              <text class="conversation-preview">{{ conversation.last_message }}</text>
-              <text class="conversation-time">{{ formatTime(conversation.last_updated_at) }}</text>
+<!--              <text class="conversation-preview">{{ conversation.last_message }}</text>-->
+<!--              <text class="conversation-time">{{ formatTime(conversation.last_updated_at) }}</text>-->
             </view>
-            <view class="message-count">{{ conversation.message_count }}条</view>
+            <view class="conversation-actions">
+              <view class="message-count">{{ conversation.message_count }}条</view>
+              <view class="delete-btn" @click.stop="deleteConversation(conversation.id)">删除</view>
+            </view>
           </view>
         </scroll-view>
         <button class="new-conversation-btn" @click="createNewConversation">新建对话</button>
@@ -126,7 +129,7 @@
 </template>
 
 <script>
-import request from '@/utils/request.js'
+import { chatAPI } from '@/api/index.js'
 
 export default {
   data() {
@@ -170,14 +173,28 @@ export default {
 
   mounted() {
     this.scrollToBottom()
-    // 页面加载时创建新会话
-    if (!this.currentConversationId) {
-      this.createNewConversation()
-    }
+    // 页面加载时显示问候语，但不创建新会话
+    this.showWelcomeMessage()
   },
   methods: {
+    showWelcomeMessage() {
+      // 显示问候语，但不创建新会话
+      const welcomeMessage = {
+        type: 'ai',
+        content: '你好！我是你的留学申请顾问，请告诉我你的留学需求和背景，我会为你提供专业的选校建议。',
+        time: this.getCurrentTime()
+      }
+      this.messages.push(welcomeMessage)
+      this.scrollToBottom()
+    },
+
     async sendMessage() {
       if (!this.inputText.trim()) return
+
+      // 如果是第一次发送消息，先创建新会话
+      if (!this.currentConversationId) {
+        await this.createNewConversationWithTitle(this.inputText)
+      }
 
       // 添加用户消息
       const userMessage = {
@@ -203,39 +220,34 @@ export default {
       this.messages.push(aiMessage)
 
       try {
-        await request.sse('/chat/send', {
-          conversation_id: this.currentConversationId,
-          message: messageContent
-        },
-        // onMessage 回调（流式更新）
-        (content) => {
-          // 更新AI消息内容，使用接口返回的真实数据
-          this.messages[aiMessageIndex].content = content
-          this.scrollToBottom()
-        },
-        // onError 回调
-        (error) => {
-          console.error('流式请求错误:', error)
-          this.messages[aiMessageIndex].content = '抱歉，网络连接出现问题。请检查网络后重试。'
-          this.isLoading = false
-          this.scrollToBottom()
-        },
-        // onComplete 回调
-        (data) => {
-          // 更新会话ID（如果是新会话）
-          if (!this.currentConversationId && data.conversation_id) {
-            this.currentConversationId = data.conversation_id
-          }
+        await chatAPI.sendMessage(
+          this.currentConversationId,
+          messageContent,
+          // onMessage 回调（流式更新）
+          (content) => {
+            // 更新AI消息内容，使用接口返回的真实数据
+            this.messages[aiMessageIndex].content = content
+            this.scrollToBottom()
+          },
+          // onError 回调
+          (error) => {
+            console.error('流式请求错误:', error)
+            this.messages[aiMessageIndex].content = '抱歉，网络连接出现问题。请检查网络后重试。'
+            this.isLoading = false
+            this.scrollToBottom()
+          },
+          // onComplete 回调
+          (data) => {
+            // 处理结构化数据
+            if (data.structured_output && data.structured_output.recommendations) {
+              this.showUniversityCard = true
+              this.updateUniversityInfo(data.structured_output.recommendations[0])
+            }
 
-          // 处理结构化数据
-          if (data.structured_output && data.structured_output.recommendations) {
-            this.showUniversityCard = true
-            this.updateUniversityInfo(data.structured_output.recommendations[0])
+            this.isLoading = false
+            this.scrollToBottom()
           }
-
-          this.isLoading = false
-          this.scrollToBottom()
-        })
+        )
 
       } catch (error) {
         console.error('发送消息失败:', error)
@@ -245,12 +257,25 @@ export default {
       }
     },
 
+    async createNewConversationWithTitle(userMessage) {
+      try {
+        // 使用用户的第一条消息作为会话标题
+        const title = userMessage.length > 20 ? userMessage.substring(0, 20) + '...' : userMessage
+        const response = await chatAPI.createConversation(title)
+        this.currentConversationId = response.data.id
+        console.log('创建新会话成功，ID:', this.currentConversationId, '标题:', title)
+      } catch (error) {
+        console.error('创建新会话失败:', error)
+        uni.showToast({
+          title: '创建会话失败',
+          icon: 'none'
+        })
+      }
+    },
+
     async loadConversations() {
       try {
-        const response = await request.get('/chat/conversations', {
-          page: 1,
-          size: 20
-        })
+        const response = await chatAPI.getConversations(1, 20)
         this.conversations = response.data.list || []
       } catch (error) {
         console.error('获取会话列表失败:', error)
@@ -259,10 +284,7 @@ export default {
 
     async loadHistory(conversationId) {
       try {
-        const response = await request.get(`/chat/history/${conversationId}`, {
-          page: 1,
-          size: 50
-        })
+        const response = await chatAPI.getHistory(conversationId, 1, 50)
 
         // 转换消息格式
         this.messages = (response.data.messages || []).map(msg => ({
@@ -279,9 +301,7 @@ export default {
 
     async createNewConversation() {
       try {
-        const response = await request.post('/chat/conversations', {
-          title: '新对话'
-        })
+        const response = await chatAPI.createConversation('新对话')
 
         this.currentConversationId = response.data.id
         this.messages = []
@@ -302,6 +322,54 @@ export default {
           icon: 'none'
         })
       }
+    },
+
+    async deleteConversation(conversationId) {
+      console.log('开始删除对话，ID:', conversationId)
+      // 使用setTimeout确保弹窗完全关闭后再显示确认对话框
+      setTimeout(() => {
+        uni.showModal({
+          title: '确认删除',
+          content: '确定要删除这个对话吗？删除后无法恢复。',
+          confirmColor: '#FF3B30',
+          success: async (res) => {
+            if (res.confirm) {
+              try {
+                console.log('用户确认删除，调用接口...')
+                // 调用删除接口 - 使用chatAPI
+                const response = await chatAPI.deleteConversation(targetConversationId)
+                console.log('删除接口返回:', response)
+
+                // 如果删除的是当前对话，则创建新对话
+                if (this.currentConversationId === targetConversationId) {
+                  console.log('删除的是当前对话，创建新对话...')
+                  await this.createNewConversation()
+                }
+
+                // 重新加载会话列表
+                console.log('重新加载会话列表...')
+                await this.loadConversations()
+
+                uni.showToast({
+                  title: '删除成功',
+                  icon: 'success'
+                })
+              } catch (error) {
+                console.error('删除会话失败:', error)
+                console.error('错误详情:', error)
+                uni.showToast({
+                  title: '删除失败: ' + (error.message || '未知错误'),
+                  icon: 'none'
+                })
+              }
+            } else {
+              console.log('用户取消删除')
+              // 用户取消删除时，重新显示会话列表
+              this.showConversationModal = true
+            }
+          }
+        })
+      }, 100)
     },
 
     showConversationList() {
@@ -392,8 +460,7 @@ export default {
         })
       }
     }
-  },
-
+  }
 }
 </script>
 
@@ -500,6 +567,25 @@ export default {
   border-radius: 12rpx;
 }
 
+.conversation-actions {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.delete-btn {
+  font-size: 22rpx;
+  color: #FF3B30;
+  background: #FFF5F5;
+  padding: 6rpx 12rpx;
+  border-radius: 8rpx;
+  border: 1rpx solid #FFD1D1;
+}
+
+.delete-btn:active {
+  background: #FFE5E5;
+}
+
 .new-conversation-btn {
   background: linear-gradient(162deg, #006B5C 0%, #00BFA5 100%);
   color: #FFFFFF;
@@ -585,8 +671,8 @@ export default {
   box-sizing: border-box;
   flex: 1;
   overflow-y: auto;
-  padding: 32rpx 32rpx; /* 减小左右内边距，从48rpx改为32rpx */
-  padding-bottom: 320rpx; /* 增加底部内边距，避免内容被底部操作区域遮挡 */
+  padding: 32rpx 32rpx;
+  padding-bottom: 320rpx;
 }
 
 .date-indicator {
@@ -615,30 +701,30 @@ export default {
 
 .user-message {
   align-items: flex-end;
-  padding-right: 0; /* 移除右侧内边距，避免溢出 */
+  padding-right: 0;
 }
 
 .message-bubble {
-  max-width: 75%; /* 减小最大宽度，避免右侧溢出 */
+  max-width: 75%;
   padding: 24rpx 32rpx;
   border-radius: 24rpx;
   margin-bottom: 12rpx;
-  word-wrap: break-word; /* 确保长文本换行 */
+  word-wrap: break-word;
 }
 
 .ai-message .message-bubble {
   background: #FFFFFF;
   border: 1rpx solid #E0E0E0;
   border-bottom-left-radius: 0;
-  margin-left: 0; /* 确保左侧消息从左边开始 */
+  margin-left: 0;
 }
 
 .user-message .message-bubble {
   background: #007AFF;
   color: #FFFFFF;
   border-bottom-right-radius: 0;
-  margin-right: 0; /* 确保右侧消息右边距为0 */
-  word-break: break-word; /* 确保长单词也能正确换行 */
+  margin-right: 0;
+  word-break: break-word;
 }
 
 .message-time {
@@ -738,7 +824,7 @@ export default {
 /* 底部操作区域 */
 .bottom-actions {
   position: fixed;
-  bottom: 80rpx; /* 固定在底部导航栏上方 */
+  bottom: 80rpx;
   left: 0;
   right: 0;
   background: #FFFFFF;
@@ -781,13 +867,6 @@ export default {
   color: #666666;
 }
 
-.input-placeholder {
-  flex: 1;
-  text-align: center;
-  font-size: 26rpx;
-  color: #999999;
-}
-
 .send-button {
   background: #007AFF;
   color: #FFFFFF;
@@ -799,9 +878,30 @@ export default {
   justify-content: center;
 }
 
-.tab-item.active .tab-label {
-  color: #007AFF;
-  font-weight: 500;
+.send-button.disabled {
+  background: #CCCCCC !important;
+  cursor: not-allowed;
+}
+
+.chat-input {
+  flex: 1;
+  height: 60rpx;
+  font-size: 26rpx;
+  color: #333333;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0 20rpx;
+}
+
+.chat-input::placeholder {
+  color: #999999;
+}
+
+.chat-input:disabled {
+  background: #F5F5F5;
+  color: #999999;
+  cursor: not-allowed;
 }
 
 /* 加载指示器 */
@@ -844,62 +944,6 @@ export default {
   30% {
     transform: translateY(-10rpx);
     opacity: 1;
-  }
-}
-
-/* 输入框样式 */
-.chat-input {
-  flex: 1;
-  height: 60rpx;
-  font-size: 26rpx;
-  color: #333333;
-  background: transparent;
-  border: none;
-  outline: none;
-  padding: 0 20rpx;
-}
-
-.chat-input::placeholder {
-  color: #999999;
-}
-
-.chat-input:disabled {
-  background: #F5F5F5;
-  color: #999999;
-  cursor: not-allowed;
-}
-
-.send-button.disabled {
-  background: #CCCCCC !important;
-  cursor: not-allowed;
-}
-
-/* 流式内容样式 */
-.streaming-content {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-}
-
-.streaming-text {
-  font-size: 28rpx;
-  line-height: 1.6;
-  color: #1A1A1A;
-}
-
-.typing-cursor {
-  width: 2rpx;
-  height: 28rpx;
-  background: #006B5C;
-  animation: blink 1s infinite;
-}
-
-@keyframes blink {
-  0%, 50% {
-    opacity: 1;
-  }
-  51%, 100% {
-    opacity: 0;
   }
 }
 
