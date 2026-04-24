@@ -20,15 +20,15 @@
     </view>
 
     <!-- 会话列表抽屉 -->
-    <view class="drawer-overlay" v-if="showConversationModal" @click="hideConversationModal">
+    <view class="drawer-overlay" v-if="showConversationModal" @click="hideConversationModal" :class="{ 'overlay-visible': showConversationModal }">
       <view class="conversation-drawer" @click.stop :class="{ 'drawer-open': showConversationModal }">
         <view class="drawer-header">
           <text class="drawer-title">对话历史</text>
           <view class="close-button" @click="hideConversationModal">✕</view>
         </view>
         <scroll-view class="conversation-list" scroll-y="true">
-          <view v-for="conversation in conversations" :key="conversation.id"
-                class="conversation-item">
+          <view v-for="(conversation, index) in conversations" :key="conversation.id"
+                class="conversation-item" :style="{ animationDelay: `${index * 0.05}s` }">
             <view class="conversation-info" @click.stop="selectConversation(conversation)">
               <text class="conversation-title">{{ conversation.title }}</text>
 <!--              <text class="conversation-preview">{{ conversation.last_message }}</text>-->
@@ -326,50 +326,34 @@ export default {
 
     async deleteConversation(conversationId) {
       console.log('开始删除对话，ID:', conversationId)
-      // 使用setTimeout确保弹窗完全关闭后再显示确认对话框
-      setTimeout(() => {
-        uni.showModal({
-          title: '确认删除',
-          content: '确定要删除这个对话吗？删除后无法恢复。',
-          confirmColor: '#FF3B30',
-          success: async (res) => {
-            if (res.confirm) {
-              try {
-                console.log('用户确认删除，调用接口...')
-                // 调用删除接口 - 使用chatAPI
-                const response = await chatAPI.deleteConversation(targetConversationId)
-                console.log('删除接口返回:', response)
+      try {
+        console.log('调用删除接口...')
+        // 调用删除接口 - 使用chatAPI
+        const response = await chatAPI.deleteConversation(conversationId)
+        console.log('删除接口返回:', response)
 
-                // 如果删除的是当前对话，则创建新对话
-                if (this.currentConversationId === targetConversationId) {
-                  console.log('删除的是当前对话，创建新对话...')
-                  await this.createNewConversation()
-                }
+        // 如果删除的是当前对话，则创建新对话
+        if (this.currentConversationId === conversationId) {
+          console.log('删除的是当前对话，创建新对话...')
+          await this.createNewConversation()
+        }
 
-                // 重新加载会话列表
-                console.log('重新加载会话列表...')
-                await this.loadConversations()
+        // 重新加载会话列表
+        console.log('重新加载会话列表...')
+        await this.loadConversations()
 
-                uni.showToast({
-                  title: '删除成功',
-                  icon: 'success'
-                })
-              } catch (error) {
-                console.error('删除会话失败:', error)
-                console.error('错误详情:', error)
-                uni.showToast({
-                  title: '删除失败: ' + (error.message || '未知错误'),
-                  icon: 'none'
-                })
-              }
-            } else {
-              console.log('用户取消删除')
-              // 用户取消删除时，重新显示会话列表
-              this.showConversationModal = true
-            }
-          }
+        uni.showToast({
+          title: '删除成功',
+          icon: 'success'
         })
-      }, 100)
+      } catch (error) {
+        console.error('删除会话失败:', error)
+        console.error('错误详情:', error)
+        uni.showToast({
+          title: '删除失败: ' + (error.message || '未知错误'),
+          icon: 'none'
+        })
+      }
     },
 
     showConversationList() {
@@ -479,8 +463,17 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0);
   z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out, background 0.3s ease-in-out;
+  pointer-events: none;
+}
+
+.drawer-overlay.overlay-visible {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.5);
+  pointer-events: auto;
 }
 
 .conversation-drawer {
@@ -493,12 +486,16 @@ export default {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: right 0.3s ease-in-out;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   box-shadow: -4rpx 0 12rpx rgba(0, 0, 0, 0.1);
+  transform: translateX(20rpx) scale(0.98);
+  opacity: 0;
 }
 
 .conversation-drawer.drawer-open {
   right: 0;
+  transform: translateX(0) scale(1);
+  opacity: 1;
 }
 
 .drawer-header {
@@ -533,6 +530,9 @@ export default {
   justify-content: space-between;
   padding: 24rpx 32rpx;
   border-bottom: 1rpx solid #F0F0F0;
+  opacity: 0;
+  transform: translateX(40rpx);
+  animation: slideInItem 0.4s ease-out forwards;
 }
 
 .conversation-item:active {
@@ -966,6 +966,18 @@ export default {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* 抽屉动画 */
+@keyframes slideInItem {
+  from {
+    opacity: 0;
+    transform: translateX(40rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 </style>
