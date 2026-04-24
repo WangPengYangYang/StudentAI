@@ -38,25 +38,6 @@
         </view>
       </view>
 
-      <!-- 联系方式 -->
-      <view class="section">
-        <text class="section-title">联系我们</text>
-        <view class="contact-list">
-          <view class="contact-item" @click="makePhoneCall">
-            <text class="contact-icon">📞</text>
-            <text class="contact-text">客服热线: 400-123-4567</text>
-          </view>
-          <view class="contact-item" @click="sendEmail">
-            <text class="contact-icon">📧</text>
-            <text class="contact-text">邮箱: support@studentassistant.com</text>
-          </view>
-          <view class="contact-item" @click="openWebsite">
-            <text class="contact-icon">🌐</text>
-            <text class="contact-text">官网: www.studentassistant.com</text>
-          </view>
-        </view>
-      </view>
-
       <!-- 版权信息 -->
       <view class="copyright">
         <text class="copyright-text">© 2025 学生助手 版权所有</text>
@@ -73,38 +54,6 @@ export default {
         phoneNumber: '400-123-4567'
       });
     },
-
-    sendEmail() {
-      uni.showModal({
-        title: '发送邮件',
-        content: '是否要发送邮件到 support@studentassistant.com？',
-        success: (res) => {
-          if (res.confirm) {
-            // 这里可以集成邮件发送功能
-            uni.showToast({
-              title: '邮件功能开发中',
-              icon: 'none'
-            });
-          }
-        }
-      });
-    },
-
-    openWebsite() {
-      uni.showModal({
-        title: '访问官网',
-        content: '是否要访问我们的官方网站？',
-        success: (res) => {
-          if (res.confirm) {
-            // 这里可以打开网页
-            uni.showToast({
-              title: '网页功能开发中',
-              icon: 'none'
-            });
-          }
-        }
-      });
-    }
   }
 }
 </script>
@@ -197,39 +146,6 @@ export default {
 }
 
 .feature-text {
-  font-size: 26rpx;
-  color: #475569;
-}
-
-.contact-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20rpx;
-}
-
-.contact-item {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
-  padding: 20rpx 0;
-  border-bottom: 1rpx solid #F1F5F9;
-}
-
-.contact-item:last-child {
-  border-bottom: none;
-}
-
-.contact-item:active {
-  background-color: #F8FAFC;
-  border-radius: 12rpx;
-}
-
-.contact-icon {
-  font-size: 28rpx;
-  width: 40rpx;
-}
-
-.contact-text {
   font-size: 26rpx;
   color: #475569;
 }

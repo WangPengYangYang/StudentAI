@@ -202,84 +202,14 @@ export default {
     },
 
     // 生成选校方案
-    async generateSchoolPlan() {
-      // 如果进度未达到100%，提示用户先完成资料
-      if (this.userInfo.completion_rate < 100) {
-        uni.showModal({
-          title: '资料未完成',
-          content: `您的个人资料完成度为 ${this.userInfo.completion_rate}%，请先完成所有资料填写以生成个性化选校方案。`,
-          confirmText: '去完善资料',
-          cancelText: '稍后再说',
-          success: (res) => {
-            if (res.confirm) {
-              this.navigateTo('/pages/profile/create-profile');
-            }
-          }
-        });
-        return;
-      }
+    generateSchoolPlan() {
+      // 先存储快捷消息
+      uni.setStorageSync('quickMessage', '请基于我的个人背景，帮我生成一份选校方案');
 
-      // 进度100%时调用API生成报告
-      uni.showLoading({
-        title: '正在分析您的资料...',
-        mask: true
+      // 然后跳转到对话页面（tabbar页面需要使用switchTab）
+      uni.switchTab({
+        url: '/pages/chat/chat'
       });
-
-      try {
-        // 调用生成报告接口
-        const response = await reportAPI.generateReport();
-
-        if (response.code === 0) {
-          // 生成成功，显示进度动画
-          this.showGenerationProgress();
-        } else {
-          uni.hideLoading();
-          uni.showToast({
-            title: response.message || '生成报告失败',
-            icon: 'none'
-          });
-        }
-      } catch (error) {
-        uni.hideLoading();
-        console.error('生成选校方案失败:', error);
-        uni.showToast({
-          title: '网络请求失败，请重试',
-          icon: 'none'
-        });
-      }
-    },
-
-    // 显示生成进度动画
-    showGenerationProgress() {
-      let progress = 0;
-      const progressInterval = setInterval(() => {
-        progress += 10;
-        uni.showLoading({
-          title: `正在生成选校方案... ${progress}%`,
-          mask: true
-        });
-
-        if (progress >= 100) {
-          clearInterval(progressInterval);
-          setTimeout(() => {
-            uni.hideLoading();
-            uni.showModal({
-              title: '选校方案已生成',
-              content: '基于您的完整资料，我们已为您生成个性化的选校方案。',
-              confirmText: '查看方案',
-              cancelText: '稍后查看',
-              success: (res) => {
-                if (res.confirm) {
-                  // 跳转到报告页面查看选校方案
-                  uni.switchTab({
-                    url: '/pages/report/report?from=plan'
-                  });
-                }
-              }
-            });
-          }, 500);
-        }
-      }, 300);
     }
   }
 }

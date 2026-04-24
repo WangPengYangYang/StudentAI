@@ -70,6 +70,13 @@
 				"navigationBarTitleText": "关于我们",
 				"navigationStyle": "custom"
 			}
+		},
+		{
+			"path": "pages/feedback/feedback",
+			"style": {
+				"navigationBarTitleText": "意见反馈",
+				"navigationStyle": "custom"
+			}
 		}
 	],
 	"globalStyle": {

@@ -176,6 +176,11 @@ export default {
     // 页面加载时显示问候语，但不创建新会话
     this.showWelcomeMessage()
   },
+
+  onShow() {
+    // 页面显示时检查是否有快捷消息需要发送
+    this.checkQuickMessage()
+  },
   methods: {
     showWelcomeMessage() {
       // 显示问候语，但不创建新会话
@@ -442,6 +447,21 @@ export default {
         uni.switchTab({
           url: `/pages/${tab}/${tab}`
         })
+      }
+    },
+
+    // 检查并发送快捷消息
+    checkQuickMessage() {
+      const quickMessage = uni.getStorageSync('quickMessage')
+      if (quickMessage) {
+        // 清除存储的消息
+        uni.removeStorageSync('quickMessage')
+
+        // 延迟发送消息，确保页面完全加载
+        setTimeout(() => {
+          this.inputText = quickMessage
+          this.sendMessage()
+        }, 1000)
       }
     }
   }
