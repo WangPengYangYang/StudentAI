@@ -76,7 +76,6 @@
         <view class="menu-item" @click="navigateTo('/pages/report/report')">
           <view class="menu-icon">⭐</view>
           <text class="menu-label">收藏院校</text>
-          <view class="menu-badge">12</view>
           <view class="menu-arrow">›</view>
         </view>
       </view>
@@ -646,18 +645,6 @@ export default {
   font-size: 30rpx;
   color: #191C1E;
   font-weight: 600;
-}
-
-.menu-badge {
-  background: #FF4444;
-  color: #FFFFFF;
-  font-size: 24rpx;
-  font-weight: 700;
-  padding: 6rpx 14rpx;
-  border-radius: 9999rpx;
-  margin-right: 16rpx;
-  border: 2rpx solid #FFFFFF;
-  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.1);
 }
 
 .menu-arrow {

@@ -96,7 +96,7 @@
 
       <!-- 加载状态 -->
       <view class="loading-indicator" v-if="isLoading">
-        <text>Scholar AI 正在思考...</text>
+        <text>Scholar AI 正在思考</text>
         <view class="typing-dots">
           <view class="dot"></view>
           <view class="dot"></view>
