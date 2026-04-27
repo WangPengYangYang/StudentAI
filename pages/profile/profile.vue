@@ -14,7 +14,6 @@
         <view class="user-content">
           <view class="user-avatar">
             <image :src="userInfo.avatarUrl || '/static/logo.jpeg'" class="avatar-image"></image>
-            <view class="avatar-badge">{{ userInfo.completion_rate }}%</view>
           </view>
           <view class="user-info">
             <text class="user-name">{{ userInfo.nickName || '未登录' }}</text>
@@ -24,9 +23,9 @@
                 <view class="progress-fill" :style="{width: userInfo.completion_rate + '%'}"></view>
               </view>
               <text class="progress-text">个人资料完成度 {{ userInfo.completion_rate }}%</text>
+              <image src="/static/edit.svg" class="edit-icon" @click="navigateTo('/pages/profile/create-profile')"></image>
             </view>
           </view>
-          <view class="edit-button" @click="navigateTo('/pages/profile/create-profile')">✏️</view>
         </view>
       </view>
 
@@ -50,20 +49,20 @@
       </view>
 
       <!-- 预约咨询功能入口 -->
-      <view class="consultation-card" @click="navigateTo('/pages/consultation/consultation')">
-        <view class="consultation-content">
-          <view class="consultation-icon-wrapper">
-            <view class="consultation-icon">⏰</view>
-            <view class="consultation-badge">NEW</view>
-          </view>
-          <view class="consultation-info">
-            <text class="consultation-title">预约 1对1 咨询</text>
-            <text class="consultation-desc">专业留学顾问为您提供个性化指导</text>
-            <view class="consultation-tag">立即预约</view>
-          </view>
-          <view class="consultation-arrow">›</view>
-        </view>
-      </view>
+<!--      <view class="consultation-card" @click="navigateTo('/pages/consultation/consultation')">-->
+<!--        <view class="consultation-content">-->
+<!--          <view class="consultation-icon-wrapper">-->
+<!--            <view class="consultation-icon">⏰</view>-->
+<!--            <view class="consultation-badge">NEW</view>-->
+<!--          </view>-->
+<!--          <view class="consultation-info">-->
+<!--            <text class="consultation-title">预约 1对1 咨询</text>-->
+<!--            <text class="consultation-desc">专业留学顾问为您提供个性化指导</text>-->
+<!--            <view class="consultation-tag">立即预约</view>-->
+<!--          </view>-->
+<!--          <view class="consultation-arrow">›</view>-->
+<!--        </view>-->
+<!--      </view>-->
 
       <!-- 功能菜单 -->
       <view class="section-title">工作区</view>
@@ -305,20 +304,6 @@ export default {
   border-radius: 9999rpx;
 }
 
-.avatar-badge {
-  position: absolute;
-  bottom: -4rpx;
-  right: -4rpx;
-  background: linear-gradient(145deg, #00BFA5 0%, #006B5C 100%);
-  color: #FFFFFF;
-  font-size: 20rpx;
-  font-weight: 800;
-  padding: 6rpx 14rpx;
-  border-radius: 9999rpx;
-  border: 3rpx solid #FFFFFF;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
-}
-
 .user-info {
   flex: 1;
   display: flex;
@@ -368,20 +353,12 @@ export default {
   font-weight: 500;
 }
 
-.edit-button {
-  font-size: 32rpx;
-  color: #006B5C;
-  padding: 16rpx;
-  background: rgba(0, 107, 92, 0.1);
-  border-radius: 9999rpx;
-  transition: all 0.2s ease;
-  border: 1rpx solid rgba(0, 107, 92, 0.2);
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
-}
 
-.edit-button:active {
-  background: rgba(0, 107, 92, 0.2);
-  transform: scale(0.95);
+.edit-icon {
+  margin-left: 32rpx;
+  margin-top: 24rpx;
+  width: 24rpx;
+  height: 24rpx;
 }
 
 /* 主要功能卡片区域 */
