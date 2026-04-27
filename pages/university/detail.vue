@@ -12,206 +12,208 @@
       </view>
     </view>
 
-    <!-- 院校头部信息 -->
-    <view class="university-header">
-      <view class="university-image-large">
-        <view class="uni-placeholder-large">{{ universityInfo.shortName }}</view>
-      </view>
-      <view class="header-info">
-        <text class="uni-name-large">{{ universityInfo.name }}</text>
-        <text class="uni-location">{{ universityInfo.location }}</text>
-        <view class="ranking-info">
-          <text class="ranking-label">QS排名</text>
-          <text class="ranking-value">{{ universityInfo.ranking }}</text>
-        </view>
-      </view>
+    <!-- 状态显示 -->
+    <view v-if="loading" class="state-container">
+      <text>加载中...</text>
+    </view>
+    <view v-else-if="error" class="state-container error">
+      <text>{{ error }}</text>
+      <button class="retry-btn" @click="loadSchoolDetail">重试</button>
+    </view>
+    <view v-else-if="!schoolInfo" class="state-container">
+      <text>暂无学校数据</text>
     </view>
 
-    <!-- 专业信息 -->
-    <view class="section-card">
-      <view class="section-header">
-        <text class="section-title">推荐专业</text>
-      </view>
-      <view class="major-info">
-        <text class="major-name">{{ universityInfo.major }}</text>
-        <text class="major-desc">{{ universityInfo.majorDesc }}</text>
-      </view>
-    </view>
-
-    <!-- 匹配原因 -->
-    <view class="section-card">
-      <view class="section-header">
-        <text class="section-title">匹配原因</text>
-      </view>
-      <view class="match-reasons">
-        <view class="reason-item" v-for="(reason, index) in universityInfo.reasons" :key="index">
-          <text class="reason-icon">✓</text>
-          <text class="reason-text">{{ reason }}</text>
+    <!-- 院校详情内容 -->
+    <view v-else class="detail-content">
+      <!-- 院校头部信息 -->
+      <view class="university-header">
+        <view class="university-image-large">
+          <view class="uni-placeholder-large">{{ schoolInfo.nameCn }}</view>
+        </view>
+        <view class="header-info">
+          <text class="uni-name-large">{{ schoolInfo.nameCn }}</text>
+          <text class="uni-location">{{ getLocationText(schoolInfo) }}</text>
+          <view class="ranking-info" v-if="rankDisplay">
+            <text class="ranking-label">排名</text>
+            <text class="ranking-value">{{ rankDisplay }}</text>
+          </view>
         </view>
       </view>
-    </view>
 
-    <!-- 学校简介 -->
-    <view class="section-card">
-      <view class="section-header">
-        <text class="section-title">学校简介</text>
+      <!-- 学校简介 -->
+      <view class="section-card" v-if="schoolInfo.overview">
+        <view class="section-header">
+          <text class="section-title">学校简介</text>
+        </view>
+        <text class="description">{{ schoolInfo.overview }}</text>
       </view>
-      <text class="description">{{ universityInfo.description }}</text>
-    </view>
 
-    <!-- 申请要求 -->
-    <view class="section-card">
-      <view class="section-header">
-        <text class="section-title">申请要求</text>
-      </view>
-      <view class="requirements">
-        <view class="requirement-item">
-          <text class="req-label">GPA要求</text>
-          <text class="req-value">{{ universityInfo.gpaRequirement }}</text>
+      <!-- 专业信息 -->
+      <view class="section-card" v-if="hasMajors">
+        <view class="section-header">
+          <text class="section-title">热门专业</text>
         </view>
-        <view class="requirement-item">
-          <text class="req-label">语言要求</text>
-          <text class="req-value">{{ universityInfo.languageRequirement }}</text>
-        </view>
-        <view class="requirement-item">
-          <text class="req-label">GRE要求</text>
-          <text class="req-value">{{ universityInfo.greRequirement }}</text>
+        <view class="majors-list">
+          <view class="major-item" v-for="major in schoolInfo.majors" :key="major.id">
+            <text class="major-name">{{ major.nameCn }}</text>
+            <text class="major-category">{{ major.category }}</text>
+          </view>
         </view>
       </view>
-    </view>
 
-    <!-- 底部操作按钮 -->
-    <view class="action-buttons">
-      <button class="favorite-btn" @click="toggleFavorite">
-        <text>{{ isFavorite ? '❤️ 已收藏' : '🤍 收藏' }}</text>
-      </button>
-      <button class="apply-btn" @click="consultAI">
-        <text>咨询AI助手</text>
-      </button>
+      <!-- 项目信息 -->
+      <view class="section-card" v-if="hasPrograms">
+        <view class="section-header">
+          <text class="section-title">项目信息</text>
+        </view>
+        <view class="programs-list">
+          <view class="program-item" v-for="program in schoolInfo.programs" :key="program.id">
+            <text class="program-name">{{ program.nameCn || program.name }}</text>
+            <view class="program-details">
+              <text class="program-degree">{{ program.degree }}</text>
+              <text class="program-duration" v-if="program.duration">{{ program.duration }}</text>
+            </view>
+            <view class="program-requirements" v-if="hasRequirements(program)">
+              <text class="req-item" v-if="program.gpaMin">GPA: {{ program.gpaMin }}/{{ program.gpaScale || 4.0 }}</text>
+              <text class="req-item" v-if="program.toeflMin">托福: {{ program.toeflMin }}+</text>
+              <text class="req-item" v-if="program.ieltsMin">雅思: {{ program.ieltsMin }}+</text>
+              <text class="req-item" v-if="program.greMin">GRE: {{ program.greMin }}+</text>
+            </view>
+            <text class="program-tuition" v-if="program.tuitionYearly">
+              年学费: ${{ program.tuitionYearly.toLocaleString() }}
+            </text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 官网链接 -->
+      <view class="section-card" v-if="schoolInfo.officialUrl">
+        <view class="section-header">
+          <text class="section-title">官方网站</text>
+        </view>
+        <view class="official-link">
+          <text class="link-text" @click="openOfficialUrl">{{ schoolInfo.officialUrl }}</text>
+        </view>
+      </view>
+
+      <!-- 底部操作按钮 -->
+      <view class="action-buttons">
+        <button class="favorite-btn" @click="toggleFavorite">
+          <text>{{ isFavorite ? '❤️ 已收藏' : '🤍 收藏' }}</text>
+        </button>
+        <button class="apply-btn" @click="consultAI">
+          <text>咨询AI助手</text>
+        </button>
+      </view>
     </view>
   </view>
 </template>
 
 <script>
+import { schoolAPI } from '../../api/index.js'
+
+const countryMap = {
+  'US': '美国', 'UK': '英国', 'CA': '加拿大', 'AU': '澳大利亚',
+  'HK': '中国香港', 'SG': '新加坡', 'DE': '德国', 'FR': '法国', 'LT': '立陶宛'
+}
+
 export default {
   data() {
     return {
-      universityId: '',
+      schoolId: '',
+      schoolInfo: null,
       isFavorite: false,
-      universities: {
-        harvard: {
-          name: '哈佛大学',
-          shortName: '哈佛',
-          location: '美国，马萨诸塞州，剑桥',
-          ranking: '#4',
-          major: '数据科学理学硕士',
-          majorDesc: '这是一个跨学科项目，结合计算机科学、统计学和领域专业知识',
-          reasons: [
-            '顶级科研实力与您的学术背景高度匹配',
-            '数据科学领域全球领先的研究资源',
-            '丰富的校友网络和就业机会'
-          ],
-          description: '哈佛大学是美国最古老的高等学府，常春藤盟校成员。学校拥有世界顶尖的师资力量和科研设施，在数据科学、计算机科学等领域享有盛誉。',
-          gpaRequirement: '3.7+',
-          languageRequirement: 'TOEFL 100+ / IELTS 7.5+',
-          greRequirement: '推荐提交'
-        },
-        stanford: {
-          name: '斯坦福大学',
-          shortName: '斯坦福',
-          location: '美国，加利福尼亚州，斯坦福',
-          ranking: '#3',
-          major: '人工智能硕士',
-          majorDesc: '专注于人工智能和机器学习的前沿研究与应用',
-          reasons: [
-            '硅谷核心地理位置，科技资源丰富',
-            '卓越的创新背景与您的项目经验契合',
-            'AI领域全球顶尖的研究团队'
-          ],
-          description: '斯坦福大学是世界著名的私立研究型大学，位于硅谷中心。学校在人工智能、计算机科学等领域处于全球领先地位，培养了众多科技企业家和创新者。',
-          gpaRequirement: '3.8+',
-          languageRequirement: 'TOEFL 100+ / IELTS 7.5+',
-          greRequirement: '可选'
-        },
-        ucl: {
-          name: '伦敦大学学院',
-          shortName: 'UCL',
-          location: '英国，伦敦',
-          ranking: '#9',
-          major: '商业分析理学硕士',
-          majorDesc: '结合数据分析与商业策略，培养数据驱动决策能力',
-          reasons: [
-            '符合您的GPA成绩要求',
-            '商业分析领域全英领先',
-            '伦敦金融城就业优势明显'
-          ],
-          description: '伦敦大学学院是英国顶尖的综合性大学，G5超级精英大学成员。学校在商业分析、数据科学等领域拥有强大的研究实力和行业联系。',
-          gpaRequirement: '3.5+',
-          languageRequirement: 'TOEFL 92+ / IELTS 7.0+',
-          greRequirement: '不要求'
-        },
-        toronto: {
-          name: '多伦多大学',
-          shortName: '多大',
-          location: '加拿大，安大略省，多伦多',
-          ranking: '#21',
-          major: '信息硕士',
-          majorDesc: '信息科学与数据管理的综合专业',
-          reasons: [
-            '该领域强大的校友资源网络',
-            '加拿大顶尖学府，声誉卓著',
-            '信息科学领域研究实力强'
-          ],
-          description: '多伦多大学是加拿大顶尖的研究型大学，在信息科学、人工智能等领域享有国际声誉。学校拥有多元文化的学习环境和广泛的行业合作。',
-          gpaRequirement: '3.3+',
-          languageRequirement: 'TOEFL 93+ / IELTS 7.0+',
-          greRequirement: '不要求'
-        },
-        purdue: {
-          name: '普渡大学',
-          shortName: '普渡',
-          location: '美国，印第安纳州，西拉法叶',
-          ranking: '#99',
-          major: '计算机科学理学硕士',
-          majorDesc: '计算机科学核心理论与实践的深度结合',
-          reasons: [
-            '与您的背景高度契合',
-            '高性价比的留学选择',
-            '计算机科学领域传统强校'
-          ],
-          description: '普渡大学是美国著名的公立研究型大学，工程学院和计算机科学学院享誉全美。学校提供高质量的教育资源和相对合理的留学成本。',
-          gpaRequirement: '3.0+',
-          languageRequirement: 'TOEFL 80+ / IELTS 6.5+',
-          greRequirement: '可选'
-        }
-      }
+      loading: false,
+      error: ''
     }
   },
   computed: {
-    universityInfo() {
-      return this.universities[this.universityId] || this.universities.harvard
+    rankDisplay() {
+      const { schoolInfo } = this
+      if (!schoolInfo) return ''
+      if (schoolInfo.qsRankRaw) return `QS ${schoolInfo.qsRankRaw}`
+      if (schoolInfo.qsRank > 0) return `QS #${schoolInfo.qsRank}`
+      if (schoolInfo.theRankRaw) return `THE ${schoolInfo.theRankRaw}`
+      if (schoolInfo.theRank > 0) return `THE #${schoolInfo.theRank}`
+      return ''
+    },
+    hasMajors() {
+      return this.schoolInfo?.majors?.length > 0
+    },
+    hasPrograms() {
+      return this.schoolInfo?.programs?.length > 0
     }
   },
   onLoad(options) {
-    if (options.name) {
-      this.universityId = options.name
+    if (options.id) {
+      this.schoolId = options.id
+      this.loadSchoolDetail()
+    } else {
+      this.error = '缺少学校ID参数'
     }
   },
   methods: {
+    async loadSchoolDetail() {
+      this.loading = true
+      this.error = ''
+      try {
+        const response = await schoolAPI.getSchoolDetail(this.schoolId)
+        if (response.code === 0 && response.data) {
+          this.schoolInfo = response.data
+          this.isFavorite = response.data.is_favorited || false
+        } else {
+          this.error = response.message || '获取学校详情失败'
+        }
+      } catch (error) {
+        console.error('获取学校详情异常:', error)
+        this.error = '网络请求失败，请检查网络连接'
+      } finally {
+        this.loading = false
+      }
+    },
+
+    getLocationText(school) {
+      const country = countryMap[school.country] || school.country
+      return `${country} · ${school.city}`
+    },
+
+    hasRequirements(program) {
+      return program.gpaMin || program.toeflMin || program.ieltsMin || program.greMin
+    },
+
+    openOfficialUrl() {
+      if (this.schoolInfo.officialUrl) {
+        uni.setClipboardData({
+          data: this.schoolInfo.officialUrl,
+          success: () => {
+            uni.showToast({ title: '官网链接已复制到剪贴板', icon: 'none' })
+          }
+        })
+      }
+    },
+
+    async toggleFavorite() {
+      try {
+        const apiCall = this.isFavorite ? schoolAPI.unfavoriteSchool : schoolAPI.favoriteSchool
+        await apiCall(this.schoolId)
+        this.isFavorite = !this.isFavorite
+        uni.showToast({
+          title: this.isFavorite ? '已收藏' : '已取消收藏',
+          icon: 'none'
+        })
+      } catch (error) {
+        console.error('收藏操作失败:', error)
+        uni.showToast({ title: '操作失败，请重试', icon: 'none' })
+      }
+    },
+
+    consultAI() {
+      uni.switchTab({ url: '/pages/chat/chat' })
+    },
+
     goBack() {
       uni.navigateBack()
-    },
-    toggleFavorite() {
-      this.isFavorite = !this.isFavorite
-      uni.showToast({
-        title: this.isFavorite ? '已收藏' : '已取消收藏',
-        icon: 'none'
-      })
-    },
-    consultAI() {
-      uni.switchTab({
-        url: '/pages/chat/chat'
-      })
     }
   }
 }
@@ -224,7 +226,6 @@ export default {
   padding-bottom: 120rpx;
 }
 
-/* 导航栏 */
 .nav-bar {
   background: #FFFFFF;
   padding: 32rpx 24rpx;
@@ -246,27 +247,15 @@ export default {
   gap: 8rpx;
 }
 
-.back-icon {
-  font-size: 32rpx;
+.back-icon, .back-text, .nav-title {
   color: #191C1E;
 }
 
-.back-text {
-  font-size: 28rpx;
-  color: #191C1E;
-}
+.back-icon { font-size: 32rpx; }
+.back-text { font-size: 28rpx; }
+.nav-title { font-size: 32rpx; font-weight: 600; }
+.nav-right { width: 80rpx; }
 
-.nav-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #191C1E;
-}
-
-.nav-right {
-  width: 80rpx;
-}
-
-/* 院校头部 */
 .university-header {
   background: linear-gradient(135deg, #006B5C 0%, #00BFA5 100%);
   padding: 48rpx 24rpx;
@@ -294,9 +283,7 @@ export default {
   font-weight: 600;
 }
 
-.header-info {
-  flex: 1;
-}
+.header-info { flex: 1; }
 
 .uni-name-large {
   font-size: 36rpx;
@@ -333,7 +320,6 @@ export default {
   color: #FFFFFF;
 }
 
-/* 区块卡片 */
 .section-card {
   background: #FFFFFF;
   margin: 24rpx;
@@ -342,9 +328,7 @@ export default {
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
 }
 
-.section-header {
-  margin-bottom: 20rpx;
-}
+.section-header { margin-bottom: 20rpx; }
 
 .section-title {
   font-size: 30rpx;
@@ -352,65 +336,36 @@ export default {
   color: #191C1E;
 }
 
-/* 专业信息 */
-.major-info {
-  display: flex;
-  flex-direction: column;
-  gap: 12rpx;
+.state-container {
+  text-align: center;
+  padding: 48rpx;
+  color: #94A3B8;
 }
 
-.major-name {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #006B5C;
+.state-container.error { color: #FF6B6B; }
+
+.retry-btn {
+  margin-top: 24rpx;
+  background: #006B5C;
+  color: #FFFFFF;
+  padding: 16rpx 32rpx;
+  border-radius: 8rpx;
+  border: none;
 }
 
-.major-desc {
-  font-size: 24rpx;
-  color: #666666;
-  line-height: 1.6;
-}
-
-/* 匹配原因 */
-.match-reasons {
-  display: flex;
-  flex-direction: column;
-  gap: 16rpx;
-}
-
-.reason-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 12rpx;
-}
-
-.reason-icon {
-  color: #00BFA5;
-  font-size: 28rpx;
-  margin-top: 4rpx;
-}
-
-.reason-text {
-  font-size: 26rpx;
-  color: #333333;
-  line-height: 1.6;
-}
-
-/* 描述 */
 .description {
   font-size: 26rpx;
   color: #333333;
   line-height: 1.8;
 }
 
-/* 申请要求 */
-.requirements {
+.majors-list {
   display: flex;
   flex-direction: column;
   gap: 16rpx;
 }
 
-.requirement-item {
+.major-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -418,22 +373,92 @@ export default {
   border-bottom: 1rpx solid #F0F0F0;
 }
 
-.requirement-item:last-child {
-  border-bottom: none;
+.major-item:last-child { border-bottom: none; }
+
+.major-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #006B5C;
 }
 
-.req-label {
-  font-size: 26rpx;
-  color: #666666;
+.major-category {
+  font-size: 22rpx;
+  color: #94A3B8;
+  background: #F8FAFC;
+  padding: 4rpx 12rpx;
+  border-radius: 6rpx;
 }
 
-.req-value {
-  font-size: 26rpx;
+.programs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.program-item {
+  padding: 20rpx;
+  background: #F8FAFC;
+  border-radius: 12rpx;
+}
+
+.program-name {
+  font-size: 28rpx;
+  font-weight: 600;
   color: #191C1E;
-  font-weight: 500;
+  display: block;
+  margin-bottom: 8rpx;
 }
 
-/* 底部按钮 */
+.program-details {
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 12rpx;
+}
+
+.program-degree {
+  font-size: 22rpx;
+  color: #006B5C;
+  background: rgba(0, 107, 92, 0.1);
+  padding: 4rpx 12rpx;
+  border-radius: 6rpx;
+}
+
+.program-duration {
+  font-size: 22rpx;
+  color: #94A3B8;
+}
+
+.program-requirements {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-bottom: 12rpx;
+}
+
+.req-item {
+  font-size: 20rpx;
+  color: #666666;
+  background: #FFFFFF;
+  padding: 4rpx 8rpx;
+  border-radius: 4rpx;
+  border: 1rpx solid #E2E8F0;
+}
+
+.program-tuition {
+  font-size: 22rpx;
+  color: #006B5C;
+  font-weight: 600;
+}
+
+.official-link { padding: 16rpx 0; }
+
+.link-text {
+  font-size: 26rpx;
+  color: #006B5C;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .action-buttons {
   position: fixed;
   bottom: 0;

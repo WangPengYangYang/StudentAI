@@ -44,6 +44,13 @@
 			}
 		},
 		{
+			"path": "pages/university/university",
+			"style": {
+				"navigationBarTitleText": "院校列表",
+				"navigationStyle": "custom"
+			}
+		},
+		{
 			"path": "pages/university/detail",
 			"style": {
 				"navigationBarTitleText": "院校详情",

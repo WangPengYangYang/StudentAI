@@ -52,10 +52,12 @@
       <view class="section">
         <view class="section-header">
           <text class="section-title">热门留学国家</text>
-          <text class="section-more">查看全部</text>
+          <text class="section-more" @click="toggleCountries">
+            {{ showAll.countries ? '收起' : '查看全部' }}
+          </text>
         </view>
         <view class="countries-grid">
-          <view class="country-item" v-for="country in countries" :key="country.name" @click="selectCountry(country)">
+          <view class="country-item" v-for="country in displayedCountries" :key="country.code" @click="selectCountry(country)">
             <view class="country-icon">{{ country.icon }}</view>
             <text class="country-name">{{ country.name }}</text>
           </view>
@@ -69,7 +71,7 @@
           <text class="section-tag">QS 2024</text>
         </view>
         <view class="universities-list">
-          <view class="university-card" v-for="uni in universities" :key="uni.name" @click="viewUniversity(uni)">
+          <view class="university-card" v-for="uni in displayedUniversities" :key="uni.id" @click="viewUniversity(uni)">
             <view class="uni-image-container">
               <image class="uni-image" :src="uni.image" mode="aspectFill"></image>
               <view class="uni-rank">
@@ -85,13 +87,19 @@
             </view>
           </view>
         </view>
+        <view class="show-more" v-if="universities.length > 3" @click="toggleUniversities">
+          <text>{{ showAll.universities ? '收起' : '查看更多名校' }}</text>
+          <view class="show-more-icon" :class="{ 'rotate-180': showAll.universities }">
+            {{ showAll.universities ? '↑' : '↓' }}
+          </view>
+        </view>
       </view>
     </scroll-view>
   </view>
 </template>
 
 <script>
-import { profileAPI } from '../../api/index.js'
+import { profileAPI, schoolAPI, countryAPI } from '../../api/index.js'
 
 export default {
   data() {
@@ -102,40 +110,44 @@ export default {
         total_steps: 4,
         completion_rate: 0
       },
-      countries: [
-        { name: '美国', icon: '🇺🇸' },
-        { name: '英国', icon: '🇬🇧' },
-        { name: '加拿大', icon: '🇨🇦' },
-        { name: '澳洲', icon: '🇦🇺' }
-      ],
-      universities: [
-        {
-          name: '牛津大学',
-          location: '英国 · 牛津',
-          rank: 'QS #3',
-          image: '/static/logo.jpeg',
-          tags: ['古典精英', '顶尖科研']
-        },
-        {
-          name: '麻省理工学院',
-          location: '美国 · 剑桥',
-          rank: 'QS #1',
-          image: '/static/logo.jpeg',
-          tags: ['极客天堂', '科技前沿']
-        },
-        {
-          name: '哈佛大学',
-          location: '美国 · 剑桥',
-          rank: 'QS #4',
-          image: '/static/logo.jpeg',
-          tags: ['领袖摇篮', '人文荟萃']
-        }
-      ]
+      // 热门国家数据
+      countries: [],
+      // 热门院校数据
+      universities: [],
+      // 加载状态
+      loading: {
+        countries: false,
+        universities: false
+      },
+      // 显示数量控制
+      displayLimit: {
+        countries: 4, // 首页显示4个国家
+        universities: 3 // 首页显示3所学校
+      },
+      // 是否显示全部内容
+      showAll: {
+        countries: false,
+        universities: false
+      }
+    }
+  },
+  computed: {
+    // 显示的国家列表（受数量限制）
+    displayedCountries() {
+      const limit = this.showAll.countries ? this.countries.length : this.displayLimit.countries
+      return this.countries.slice(0, limit)
+    },
+    // 显示的学校列表（受数量限制）
+    displayedUniversities() {
+      const limit = this.showAll.universities ? this.universities.length : this.displayLimit.universities
+      return this.universities.slice(0, limit)
     }
   },
   onLoad() {
-    // 页面加载时获取用户资料完成度
+    // 页面加载时获取用户资料完成度和接口数据
     this.getProfileCompletion()
+    this.getPopularCountries()
+    this.getTrendingSchools()
   },
   onShow() {
     // 页面显示时重新获取用户资料完成度（可能在其他页面修改了资料）
@@ -161,6 +173,130 @@ export default {
         this.showError('网络请求失败，请检查网络连接')
       }
     },
+
+    // 获取热门国家列表
+    async getPopularCountries() {
+      this.loading.countries = true
+      try {
+        const response = await countryAPI.getPopularCountries()
+        if (response.code === 0 && response.data && response.data.list) {
+          this.countries = response.data.list.map(country => ({
+            code: country.code,
+            name: country.name,
+            name_en: country.name_en,
+            icon: country.icon || this.getCountryFlag(country.code),
+            school_count: country.school_count,
+            popular_majors: country.popular_majors || []
+          }))
+        } else {
+          console.error('获取热门国家失败:', response.message)
+          this.showError('获取热门国家失败')
+        }
+      } catch (error) {
+        console.error('获取热门国家异常:', error)
+        this.showError('网络请求失败，请检查网络连接')
+      } finally {
+        this.loading.countries = false
+      }
+    },
+
+    // 获取热门院校列表
+    async getTrendingSchools() {
+      this.loading.universities = true
+      try {
+        const response = await schoolAPI.getTrendingSchools(10)
+        if (response.code === 0 && response.data && response.data.list) {
+          this.universities = response.data.list.map(school => ({
+            id: school.id,
+            name: school.name_cn || school.name_en,
+            name_en: school.name_en,
+            location: `${this.getCountryName(school.country)} · ${school.city}`,
+            rank: this.getRankDisplay(school),
+            image: '/static/logo.jpeg', // 暂时使用默认图片
+            tags: this.getSchoolTags(school),
+            is_favorited: school.is_favorited || false
+          }))
+        } else {
+          console.error('获取热门院校失败:', response.message)
+          this.showError('获取热门院校失败')
+        }
+      } catch (error) {
+        console.error('获取热门院校异常:', error)
+        this.showError('网络请求失败，请检查网络连接')
+      } finally {
+        this.loading.universities = false
+      }
+    },
+
+    // 根据国家代码获取国旗emoji
+    getCountryFlag(countryCode) {
+      const flagMap = {
+        'US': '🇺🇸',
+        'UK': '🇬🇧',
+        'CA': '🇨🇦',
+        'AU': '🇦🇺',
+        'HK': '🇭🇰',
+        'SG': '🇸🇬',
+        'DE': '🇩🇪',
+        'FR': '🇫🇷'
+      }
+      return flagMap[countryCode] || '🏳️'
+    },
+
+    // 根据国家代码获取国家名称
+    getCountryName(countryCode) {
+      const nameMap = {
+        'US': '美国',
+        'UK': '英国',
+        'CA': '加拿大',
+        'AU': '澳大利亚',
+        'HK': '中国香港',
+        'SG': '新加坡',
+        'DE': '德国',
+        'FR': '法国'
+      }
+      return nameMap[countryCode] || countryCode
+    },
+
+    // 获取学校排名显示
+    getRankDisplay(school) {
+      if (school.qsRankRaw) {
+        return `QS ${school.qsRankRaw}`
+      } else if (school.qsRank && school.qsRank > 0) {
+        return `QS #${school.qsRank}`
+      } else if (school.theRankRaw) {
+        return `THE ${school.theRankRaw}`
+      } else if (school.theRank && school.theRank > 0) {
+        return `THE #${school.theRank}`
+      }
+      return '未排名'
+    },
+
+    // 获取学校标签
+    getSchoolTags(school) {
+      const tags = []
+      if (school.qsRank && school.qsRank <= 10) {
+        tags.push('世界顶尖')
+      } else if (school.qsRank && school.qsRank <= 50) {
+        tags.push('全球前50')
+      } else if (school.qsRank && school.qsRank <= 100) {
+        tags.push('全球前100')
+      }
+
+      // 根据国家添加标签
+      const countryTags = {
+        'US': '美国名校',
+        'UK': '英国名校',
+        'CA': '加拿大名校',
+        'AU': '澳洲名校'
+      }
+      if (countryTags[school.country]) {
+        tags.push(countryTags[school.country])
+      }
+
+      return tags.length > 0 ? tags : ['知名院校']
+    },
+
     // 显示错误提示
     showError(message) {
       uni.showToast({
@@ -191,16 +327,26 @@ export default {
       }
     },
     selectCountry(country) {
-      uni.showToast({
-        title: `选择了${country.name}`,
-        icon: 'none'
+      // 跳转到国家详情页或学校列表页
+      uni.navigateTo({
+        url: `/pages/university/university?country=${country.code}&countryName=${country.name}`
       });
     },
-    viewUniversity(uni) {
-      uni.showToast({
-        title: `查看${uni.name}`,
-        icon: 'none'
+    viewUniversity(university) {
+      // 跳转到学校详情页
+      uni.navigateTo({
+        url: `/pages/university/detail?id=${university.id}`
       });
+    },
+
+    // 切换国家显示状态
+    toggleCountries() {
+      this.showAll.countries = !this.showAll.countries
+    },
+
+    // 切换学校显示状态
+    toggleUniversities() {
+      this.showAll.universities = !this.showAll.universities
     }
   }
 }
@@ -578,6 +724,35 @@ export default {
   font-size: 20rpx;
   font-weight: 700;
   color: #006B5C;
+}
+
+/* 查看更多样式 */
+.show-more {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8rpx;
+  padding: 24rpx;
+  background: #F8FAFC;
+  border-radius: 16rpx;
+  margin-top: 16rpx;
+  cursor: pointer;
+}
+
+.show-more text {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #006B5C;
+}
+
+.show-more-icon {
+  font-size: 20rpx;
+  color: #006B5C;
+  transition: transform 0.3s ease;
+}
+
+.rotate-180 {
+  transform: rotate(180deg);
 }
 
 /* 安全区域适配 */

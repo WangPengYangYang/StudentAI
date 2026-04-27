@@ -1,12 +1,4 @@
-/**
- * API 接口定义
- * 基于前端联调接口文档 v1.0 实现
- */
-
 import request from '../utils/request.js'
-
-// 基础路径
-// 开发环境通过代理处理前缀，生产环境使用完整路径
 const BASE_PATH = ''
 
 /**
@@ -32,14 +24,6 @@ export const authAPI = {
    * @returns {Promise}
    */
   refreshToken: (refreshToken) => request.post(`${BASE_PATH}/auth/refresh`, { refresh_token: refreshToken }),
-
-  /**
-   * 手机号登录（预留）
-   * @param {string} phone - 手机号
-   * @param {string} verifyCode - 验证码
-   * @returns {Promise}
-   */
-  phoneLogin: (phone, verifyCode) => request.post(`${BASE_PATH}/auth/phone`, { phone, verify_code: verifyCode })
 }
 
 /**
@@ -182,6 +166,13 @@ export const planAPI = {
  * 学校模块 API
  */
 export const schoolAPI = {
+  /**
+   * 获取热门院校列表（全球名校速递）
+   * @param {number} limit - 返回数量，默认10，最大20
+   * @returns {Promise}
+   */
+  getTrendingSchools: (limit = 10) => request.get(`${BASE_PATH}/schools/trending`, { limit }),
+
   /**
    * 获取学校详情
    * @param {number|string} schoolId - 学校ID

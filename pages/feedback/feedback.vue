@@ -3,52 +3,23 @@
     <!-- 顶部导航栏 -->
     <view class="nav-bar">
       <view class="nav-content">
-        <text class="nav-title">意见反馈</text>
+        <text class="nav-title">{{ helpData.title || '帮助与反馈' }}</text>
       </view>
     </view>
 
     <scroll-view class="feedback-content" scroll-y="true">
-      <!-- 反馈表单 -->
-      <view class="section">
-        <text class="section-title">反馈内容</text>
-        <view class="feedback-form">
-          <textarea
-            class="feedback-input"
-            placeholder="请输入您的宝贵意见或建议..."
-            maxlength="500"
-            v-model="feedbackContent"
-            :style="{height: textareaHeight + 'rpx'}"
-            @focus="adjustTextareaHeight"
-            @blur="resetTextareaHeight"
-          ></textarea>
-          <view class="char-count">{{ feedbackContent.length }}/500</view>
-        </view>
-      </view>
-
-      <!-- 联系方式 -->
-      <view class="section">
-        <text class="section-title">联系我们</text>
-        <view class="contact-list">
-          <view class="contact-item" @click="makePhoneCall">
-            <text class="contact-icon">📞</text>
-            <text class="contact-text">客服热线: 400-123-4567</text>
+      <!-- 帮助与联系信息 -->
+      <view class="section" v-if="helpData.description || helpData.contact_email">
+        <text class="section-title">帮助与联系</text>
+        <view class="help-content">
+          <view class="description-content" v-if="helpData.description">
+            <text class="description-text">{{ helpData.description }}</text>
           </view>
-          <view class="contact-item" @click="sendEmail">
-            <text class="contact-icon">📧</text>
-            <text class="contact-text">邮箱: support@studentassistant.com</text>
-          </view>
-          <view class="contact-item" @click="openWebsite">
-            <text class="contact-icon">🌐</text>
-            <text class="contact-text">官网: www.studentassistant.com</text>
+          <view class="contact-info" v-if="helpData.contact_email">
+            <text class="contact-label">联系邮箱：</text>
+            <text class="contact-email">{{ helpData.contact_email }}</text>
           </view>
         </view>
-      </view>
-
-      <!-- 提交按钮 -->
-      <view class="submit-section">
-        <button class="submit-button" @click="submitFeedback" :disabled="!feedbackContent.trim()">
-          {{ feedbackContent.trim() ? '提交反馈' : '请输入反馈内容' }}
-        </button>
       </view>
     </scroll-view>
   </view>
@@ -58,84 +29,51 @@
 export default {
   data() {
     return {
-      feedbackContent: '',
-      textareaHeight: 200
+      helpData: {
+        title: '',
+        description: '',
+        contact_email: ''
+      }
     };
   },
+  onLoad() {
+    this.fetchHelpData();
+  },
   methods: {
-    adjustTextareaHeight() {
-      this.textareaHeight = 300;
-    },
-
-    resetTextareaHeight() {
-      this.textareaHeight = 200;
-    },
-
-    submitFeedback() {
-      if (!this.feedbackContent.trim()) {
-        uni.showToast({
-          title: '请输入反馈内容',
-          icon: 'none'
+    // 获取帮助与反馈数据
+    async fetchHelpData() {
+      try {
+        uni.showLoading({
+          title: '加载中...'
         });
-        return;
-      }
 
-      uni.showLoading({
-        title: '提交中...'
-      });
+        // 调用获取帮助与反馈接口
+        const response = await this.$request({
+          url: '/api/v1/user/help',
+          method: 'GET'
+        });
 
-      // 模拟提交反馈
-      setTimeout(() => {
+        if (response.code === 0) {
+          this.helpData = response.data;
+        } else {
+          // 如果接口调用失败，使用默认数据
+          this.helpData = {
+            title: '帮助与反馈',
+            description: '感谢您使用留学选校助手！如有任何建议或意见，欢迎通过邮件联系我们，我们将认真倾听每一位用户的声音。',
+            contact_email: 'yaoxinyu199823@163.com'
+          };
+        }
+      } catch (error) {
+        console.error('获取帮助数据失败:', error);
+        // 使用默认数据
+        this.helpData = {
+          title: '帮助与反馈',
+          description: '感谢您使用留学选校助手！如有任何建议或意见，欢迎通过邮件联系我们，我们将认真倾听每一位用户的声音。',
+          contact_email: 'yaoxinyu199823@163.com'
+        };
+      } finally {
         uni.hideLoading();
-        uni.showToast({
-          title: '反馈提交成功',
-          icon: 'success'
-        });
-
-        // 清空内容
-        this.feedbackContent = '';
-
-        // 返回上一页
-        setTimeout(() => {
-          uni.navigateBack();
-        }, 1500);
-      }, 2000);
-    },
-
-    makePhoneCall() {
-      uni.makePhoneCall({
-        phoneNumber: '400-123-4567'
-      });
-    },
-
-    sendEmail() {
-      uni.showModal({
-        title: '发送邮件',
-        content: '是否要发送邮件到 support@studentassistant.com？',
-        success: (res) => {
-          if (res.confirm) {
-            uni.showToast({
-              title: '邮件功能开发中',
-              icon: 'none'
-            });
-          }
-        }
-      });
-    },
-
-    openWebsite() {
-      uni.showModal({
-        title: '访问官网',
-        content: '是否要访问我们的官方网站？',
-        success: (res) => {
-          if (res.confirm) {
-            uni.showToast({
-              title: '网页功能开发中',
-              icon: 'none'
-            });
-          }
-        }
-      });
+      }
     }
   }
 }
@@ -182,97 +120,40 @@ export default {
   display: block;
 }
 
-.feedback-form {
-  position: relative;
+
+.description-content {
+  padding: 0;
 }
 
-.feedback-input {
-  width: 100%;
-  background: #F8FAFC;
-  border: 1rpx solid #E2E8F0;
-  border-radius: 16rpx;
-  padding: 24rpx;
-  font-size: 26rpx;
-  color: #191C1E;
-  box-sizing: border-box;
-  resize: none;
-  transition: all 0.2s ease;
-}
-
-.feedback-input:focus {
-  border-color: #00BFA5;
-  background: #FFFFFF;
-  box-shadow: 0 0 0 2rpx rgba(0, 191, 165, 0.1);
-}
-
-.char-count {
-  text-align: right;
-  font-size: 22rpx;
-  color: #94A3B8;
-  margin-top: 12rpx;
-}
-
-.contact-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20rpx;
-}
-
-.contact-item {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
-  padding: 20rpx 0;
-  border-bottom: 1rpx solid #F1F5F9;
-  transition: all 0.2s ease;
-}
-
-.contact-item:last-child {
-  border-bottom: none;
-}
-
-.contact-item:active {
-  background-color: #F8FAFC;
-  border-radius: 12rpx;
-}
-
-.contact-icon {
-  font-size: 28rpx;
-  width: 40rpx;
-}
-
-.contact-text {
+.description-text {
   font-size: 26rpx;
   color: #475569;
+  line-height: 1.6;
 }
 
-.submit-section {
-  margin: 32rpx 0;
+.help-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
 }
 
-.submit-button {
-  background: linear-gradient(135deg, #00BFA5 0%, #006B5C 100%);
-  color: #FFFFFF;
-  border: none;
-  padding: 28rpx;
-  border-radius: 16rpx;
-  font-size: 28rpx;
+.contact-info {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 16rpx 0;
+}
+
+.contact-label {
+  font-size: 26rpx;
+  color: #475569;
   font-weight: 600;
-  text-align: center;
-  width: 100%;
-  transition: all 0.2s ease;
-  box-shadow: 0 4rpx 16rpx rgba(0, 191, 165, 0.3);
 }
 
-.submit-button:active {
-  transform: translateY(1rpx);
-  box-shadow: 0 2rpx 8rpx rgba(0, 191, 165, 0.2);
+.contact-email {
+  font-size: 26rpx;
+  color: #00BFA5;
+  font-weight: 500;
 }
 
-.submit-button:disabled {
-  background: #CBD5E1;
-  color: #64748B;
-  box-shadow: none;
-  transform: none;
-}
 </style>
