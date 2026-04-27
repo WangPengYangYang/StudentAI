@@ -84,6 +84,13 @@
 				"navigationBarTitleText": "意见反馈",
 				"navigationStyle": "custom"
 			}
+		},
+		{
+			"path": "pages/university/favorites",
+			"style": {
+				"navigationBarTitleText": "我的收藏院校",
+				"navigationStyle": "custom"
+			}
 		}
 	],
 	"globalStyle": {

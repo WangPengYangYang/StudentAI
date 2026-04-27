@@ -73,7 +73,7 @@
           <view class="menu-arrow">›</view>
         </view>
 
-        <view class="menu-item" @click="navigateTo('/pages/report/report')">
+        <view class="menu-item" @click="navigateTo('/pages/university/favorites')">
           <view class="menu-icon">⭐</view>
           <text class="menu-label">收藏院校</text>
           <view class="menu-arrow">›</view>
