@@ -10,12 +10,12 @@
     <scroll-view class="profile-content" scroll-y="true" :style="{paddingBottom: safeAreaBottom}">
       <!-- 用户信息卡片 - 最高层级 -->
       <view class="user-content">
-        <view class="user-avatar">
+        <view class="user-avatar" @click="editAvatar">
           <image :src="userInfo.avatarUrl || '/static/logo.jpeg'" class="avatar-image"></image>
         </view>
         <view class="user-info">
-          <text class="user-name">{{ userInfo.nickName || '未登录' }}</text>
-          <image src="/static/edit.svg" class="edit-icon"></image>
+          <text class="user-name" @click="editNickname">{{ userInfo.nickName || '未登录' }}</text>
+          <image src="/static/edit.svg" class="edit-icon" @click="editNickname"></image>
         </view>
       </view>
 
@@ -89,16 +89,14 @@ export default {
       userInfo: {
         nickName: '',
         avatarUrl: ''
-      },
+      }
     };
   },
   onLoad() {
     this.calculateSafeArea();
   },
   onShow() {
-    // 页面显示时只重新获取用户信息，资料完成度在onLoad中已获取
     this.getUserInfo();
-    this.getProfileCompletion();
   },
   methods: {
     calculateSafeArea() {
@@ -151,6 +149,194 @@ export default {
         }
       });
     },
+
+    // 编辑头像
+    async editAvatar() {
+      try {
+        // 选择头像
+        const avatarRes = await this.chooseAvatar();
+        if (!avatarRes) return; // 用户取消了头像选择
+
+        // 保存头像时带上当前昵称
+        await this.saveUserInfo({
+          avatar: avatarRes,
+          nickname: this.userInfo.nickName
+        });
+      } catch (error) {
+        console.error('编辑头像失败:', error);
+      }
+    },
+
+    // 编辑昵称
+    async editNickname() {
+      try {
+        // 输入昵称
+        const nicknameRes = await this.inputNickname();
+        if (!nicknameRes) return; // 用户取消了昵称输入
+
+        // 保存昵称时带上当前头像
+        await this.saveUserInfo({
+          nickname: nicknameRes,
+          avatar: this.userInfo.avatarUrl
+        });
+      } catch (error) {
+        console.error('编辑昵称失败:', error);
+      }
+    },
+
+    // 选择头像
+    chooseAvatar() {
+      return new Promise((resolve) => {
+        uni.showActionSheet({
+          itemList: ['拍照', '从相册选择'],
+          success: async (res) => {
+            try {
+              const sourceType = res.tapIndex === 0 ? ['camera'] : ['album'];
+              const imageRes = await uni.chooseImage({
+                count: 1,
+                sizeType: ['compressed'],
+                sourceType: sourceType
+              });
+
+              if (imageRes.tempFilePaths && imageRes.tempFilePaths.length > 0) {
+                const tempFilePath = imageRes.tempFilePaths[0];
+                const base64 = await this.imageToBase64(tempFilePath);
+                resolve(base64);
+              } else {
+                resolve(null);
+              }
+            } catch (error) {
+              console.error('选择头像失败:', error);
+              uni.showToast({
+                title: '选择头像失败',
+                icon: 'none'
+              });
+              resolve(null);
+            }
+          },
+          fail: () => {
+            resolve(null);
+          }
+        });
+      });
+    },
+
+    // 图片转base64
+    imageToBase64(tempFilePath) {
+      return new Promise((resolve, reject) => {
+        // 在uni-app中，可以直接使用临时路径，但为了兼容base64格式，我们使用uni API
+        // 如果uni.getFileSystemManager不存在，则直接使用临时路径
+        if (uni.getFileSystemManager) {
+          uni.getFileSystemManager().readFile({
+            filePath: tempFilePath,
+            encoding: 'base64',
+            success: (res) => {
+              resolve('data:image/jpeg;base64,' + res.data);
+            },
+            fail: (error) => {
+              // 如果转换失败，直接使用临时路径
+              console.warn('base64转换失败，使用临时路径:', error);
+              resolve(tempFilePath);
+            }
+          });
+        } else {
+          // 不支持文件系统API的环境，直接使用临时路径
+          resolve(tempFilePath);
+        }
+      });
+    },
+
+    // 输入昵称
+    inputNickname() {
+      return new Promise((resolve) => {
+        uni.showModal({
+          title: '修改昵称',
+          content: '请输入新的昵称',
+          editable: true,
+          placeholderText: this.userInfo.nickName || '请输入昵称',
+          success: (res) => {
+            if (res.confirm && res.content) {
+              resolve(res.content.trim());
+            } else {
+              resolve(null);
+            }
+          }
+        });
+      });
+    },
+
+    // 确认保存
+    confirmSave(type = '用户信息') {
+      return new Promise((resolve) => {
+        uni.showModal({
+          title: '确认保存',
+          content: `确定要保存修改的${type}吗？`,
+          success: (res) => {
+            resolve(res.confirm);
+          }
+        });
+      });
+    },
+
+    // 保存用户信息
+    async saveUserInfo(updateData) {
+      try {
+        uni.showLoading({
+          title: '保存中...',
+          mask: true
+        });
+
+        // 验证数据
+        if (updateData.nickname && !updateData.nickname.trim()) {
+          uni.hideLoading();
+          uni.showToast({
+            title: '请输入昵称',
+            icon: 'none'
+          });
+          return;
+        }
+
+        // 检查是否有实际修改
+        const hasChange = (updateData.nickname && updateData.nickname !== this.userInfo.nickName) ||
+                         (updateData.avatar && updateData.avatar !== this.userInfo.avatarUrl);
+
+        if (!hasChange) {
+          uni.hideLoading();
+          uni.showToast({
+            title: '没有修改内容',
+            icon: 'none'
+          });
+          return;
+        }
+
+        const response = await userAPI.updateUserInfo(updateData);
+
+        if (response.code === 0) {
+          uni.hideLoading();
+          uni.showToast({
+            title: '保存成功',
+            icon: 'success'
+          });
+
+          // 更新本地用户信息
+          if (updateData.nickname) {
+            this.userInfo.nickName = updateData.nickname.trim();
+          }
+          if (updateData.avatar) {
+            this.userInfo.avatarUrl = updateData.avatar;
+          }
+        } else {
+          throw new Error(response.message || '保存失败');
+        }
+      } catch (error) {
+        uni.hideLoading();
+        console.error('保存用户信息失败:', error);
+        uni.showToast({
+          title: error.message || '保存失败',
+          icon: 'none'
+        });
+      }
+    }
 
   }
 }
@@ -210,6 +396,7 @@ export default {
   position: relative;
   border: 4rpx solid rgba(255, 255, 255, 0.8);
   box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.1);
+  cursor: pointer;
 }
 
 .avatar-image {
