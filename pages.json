@@ -30,7 +30,7 @@
 			}
 		},
 		{
-			"path": "pages/profile/profile",
+			"path": "pages/profile/mine",
 			"style": {
 				"navigationBarTitleText": "个人中心",
 				"navigationStyle": "custom"
@@ -40,6 +40,13 @@
 			"path": "pages/profile/create-profile",
 			"style": {
 				"navigationBarTitleText": "完善个人信息",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/profile/user-profile",
+			"style": {
+				"navigationBarTitleText": "用户画像",
 				"navigationStyle": "custom"
 			}
 		},
@@ -121,7 +128,7 @@
 				"text": "对话"
 			},
 			{
-				"pagePath": "pages/profile/profile",
+				"pagePath": "pages/profile/mine",
 				"text": "个人"
 			}
 		]

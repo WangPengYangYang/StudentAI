@@ -563,7 +563,7 @@ export default {
         this.saveToLocalStorage();
 
         uni.showToast({ title: '资料保存成功', icon: 'success' });
-        setTimeout(() => uni.reLaunch({ url: '/pages/profile/profile' }), 1500);
+        setTimeout(() => uni.reLaunch({ url: '/pages/profile/mine' }), 1500);
 
       } catch (error) {
         console.error('保存用户资料失败:', error);

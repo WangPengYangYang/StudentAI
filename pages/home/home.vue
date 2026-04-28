@@ -309,7 +309,7 @@ export default {
       const routes = {
         'chat': '/pages/chat/chat',
         'report': '/pages/report/report',
-        'profile': '/pages/profile/profile',
+        'profile': '/pages/profile/mine',
         'create-profile': '/pages/profile/create-profile'
       };
 

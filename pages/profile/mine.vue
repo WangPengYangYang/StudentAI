@@ -9,44 +9,16 @@
 
     <scroll-view class="profile-content" scroll-y="true" :style="{paddingBottom: safeAreaBottom}">
       <!-- 用户信息卡片 - 最高层级 -->
-      <view class="user-card">
-        <view class="user-card-bg"></view>
-        <view class="user-content">
-          <view class="user-avatar">
-            <image :src="userInfo.avatarUrl || '/static/logo.jpeg'" class="avatar-image"></image>
-          </view>
-          <view class="user-info">
-            <text class="user-name">{{ userInfo.nickName || '未登录' }}</text>
-            <text class="user-email">{{ userInfo.email || 'test@example.com' }}</text>
-            <view class="user-progress">
-              <view class="progress-bar">
-                <view class="progress-fill" :style="{width: userInfo.completion_rate + '%'}"></view>
-              </view>
-              <text class="progress-text">个人资料完成度 {{ userInfo.completion_rate }}%</text>
-              <image src="/static/edit.svg" class="edit-icon" @click="navigateTo('/pages/profile/create-profile')"></image>
-            </view>
-          </view>
+      <view class="user-content">
+        <view class="user-avatar">
+          <image :src="userInfo.avatarUrl || '/static/logo.jpeg'" class="avatar-image"></image>
+        </view>
+        <view class="user-info">
+          <text class="user-name">{{ userInfo.nickName || '未登录' }}</text>
+          <image src="/static/edit.svg" class="edit-icon"></image>
         </view>
       </view>
 
-      <!-- 生成选校方案按钮 -->
-      <view class="school-plan-card" :class="{'disabled': userInfo.completion_rate < 100}" @click="generateSchoolPlan">
-        <view class="plan-content">
-          <view class="plan-icon-wrapper">
-            <view class="plan-icon">🎓</view>
-            <view class="plan-badge" v-if="userInfo.completion_rate === 100">READY</view>
-          </view>
-          <view class="plan-info">
-            <text class="plan-title">生成选校方案</text>
-            <text class="plan-desc" v-if="userInfo.completion_rate === 100">基于您的完整资料，为您推荐最适合的院校</text>
-            <text class="plan-desc" v-else>资料完成度 {{userInfo.completion_rate}}%，完成资料后可生成个性化方案</text>
-            <view class="plan-tag" v-if="userInfo.completion_rate === 100">立即生成</view>
-            <view class="plan-tag disabled" v-else>资料未完成</view>
-          </view>
-          <view class="plan-arrow" v-if="userInfo.completion_rate === 100">›</view>
-          <view class="plan-lock" v-else>🔒</view>
-        </view>
-      </view>
 
       <!-- 预约咨询功能入口 -->
 <!--      <view class="consultation-card" @click="navigateTo('/pages/consultation/consultation')">-->
@@ -67,6 +39,12 @@
       <!-- 功能菜单 -->
       <view class="section-title">工作区</view>
       <view class="menu-section">
+        <view class="menu-item" @click="navigateTo('/pages/profile/user-profile')">
+          <view class="menu-icon">👤</view>
+          <text class="menu-label">用户画像</text>
+          <view class="menu-arrow">›</view>
+        </view>
+
         <view class="menu-item" @click="switchToReport()">
           <view class="menu-icon">📋</view>
           <text class="menu-label">我的报告</text>
@@ -96,15 +74,13 @@
       </view>
 
       <!-- 退出登录 -->
-      <view class="logout-section">
-        <button class="logout-button" @click="handleLogout">退出登录</button>
-      </view>
+      <view class="logout-section" @click="handleLogout">退出登录</view>
     </scroll-view>
   </view>
 </template>
 
 <script>
-import { profileAPI, userAPI, reportAPI } from "@/api/index.js";
+import { userAPI } from "@/api/index.js";
 
 export default {
   data() {
@@ -112,15 +88,8 @@ export default {
       safeAreaBottom: '120rpx',
       userInfo: {
         nickName: '',
-        avatarUrl: '',
-        email: '',
-        completion_rate: 0
+        avatarUrl: ''
       },
-      profileCompletion: {
-        completed_steps: 0,
-        total_steps: 4,
-        completion_rate: 0
-      }
     };
   },
   onLoad() {
@@ -149,28 +118,12 @@ export default {
           this.userInfo = {
             nickName: userData.nickname || this.userInfo.nickName,
             avatarUrl: userData.avatar || this.userInfo.avatarUrl,
-            email: this.userInfo.email
           };
         }
       } catch (error) {
         console.error('获取用户信息失败:', error);
       }
     },
-    // 获取用户资料完成度
-    async getProfileCompletion() {
-  try {
-    const response = await profileAPI.getCompletion();
-    if (response.code === 0 && response.data) {
-      this.userInfo.completion_rate = response.data.completion_rate || 0;
-    } else {
-      console.error('获取资料完成度失败:', response.message);
-      uni.showToast({ title: '获取资料完成度失败', icon: 'none' });
-    }
-  } catch (error) {
-    console.error('获取资料完成度异常:', error);
-    uni.showToast({ title: '网络请求失败，请检查网络连接', icon: 'none' });
-  }
-},
 
     navigateTo(url) {
       uni.navigateTo({ url });
@@ -188,7 +141,7 @@ export default {
           if (res.confirm) {
             uni.removeStorageSync('userToken');
             uni.removeStorageSync('userInfo');
-            this.userInfo = { nickName: '', avatarUrl: '', email: '', completion_rate: 0 };
+            this.userInfo = { nickName: '', avatarUrl: ''};
 
             uni.showToast({ title: '退出成功', icon: 'success' });
             setTimeout(() => {
@@ -199,16 +152,6 @@ export default {
       });
     },
 
-    // 生成选校方案
-    generateSchoolPlan() {
-      // 先存储快捷消息
-      uni.setStorageSync('quickMessage', '请基于我的个人背景，帮我生成一份选校方案');
-
-      // 然后跳转到对话页面（tabbar页面需要使用switchTab）
-      uni.switchTab({
-        url: '/pages/chat/chat'
-      });
-    }
   }
 }
 </script>
@@ -241,41 +184,13 @@ export default {
 /* 内容区域 */
 .profile-content {
   flex: 1;
-  padding: 0 24rpx 32rpx;
+  padding: 24rpx 32rpx;
   box-sizing: border-box;
 }
 
 /* 安全区域适配 */
 .safe-area {
   padding-bottom: env(safe-area-inset-bottom);
-}
-
-/* 用户信息卡片 - 最高层级 */
-.user-card {
-  position: relative;
-  background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
-  border-radius: 32rpx;
-  padding: 40rpx 32rpx;
-  margin: 32rpx 0 24rpx;
-  box-shadow: 0 20rpx 60rpx rgba(0, 107, 92, 0.18);
-  border: 1rpx solid rgba(0, 191, 165, 0.3);
-  box-sizing: border-box;
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.user-card:active {
-  transform: translateY(2rpx);
-  box-shadow: 0 12rpx 40rpx rgba(0, 107, 92, 0.12);
-}
-
-.user-card-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(0, 191, 165, 0.05) 0%, rgba(0, 107, 92, 0.05) 100%);
 }
 
 .user-content {
@@ -306,7 +221,7 @@ export default {
 .user-info {
   flex: 1;
   display: flex;
-  flex-direction: column;
+  align-items: baseline;
   gap: 16rpx;
 }
 
@@ -318,44 +233,7 @@ export default {
   letter-spacing: 0.5rpx;
 }
 
-.user-email {
-  font-size: 26rpx;
-  color: #64748B;
-  font-weight: 500;
-}
-
-.user-progress {
-  margin-top: 12rpx;
-}
-
-.progress-bar {
-  width: 100%;
-  height: 8rpx;
-  background: #F1F5F9;
-  border-radius: 9999rpx;
-  overflow: hidden;
-  box-shadow: inset 0 1rpx 3rpx rgba(0, 0, 0, 0.1);
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #00BFA5 0%, #006B5C 100%);
-  border-radius: 9999rpx;
-  transition: width 0.3s ease;
-  box-shadow: 0 0 8rpx rgba(0, 191, 165, 0.3);
-}
-
-.progress-text {
-  font-size: 24rpx;
-  color: #64748B;
-  margin-top: 8rpx;
-  font-weight: 500;
-}
-
-
 .edit-icon {
-  margin-left: 32rpx;
-  margin-top: 24rpx;
   width: 24rpx;
   height: 24rpx;
 }
@@ -365,138 +243,6 @@ export default {
   margin: 32rpx 0;
 }
 
-/* 生成选校方案卡片 - 中等层级 */
-.school-plan-card {
-  background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
-  border-radius: 28rpx;
-  padding: 36rpx;
-  box-sizing: border-box;
-  margin: 0 0 24rpx;
-  box-shadow: 0 12rpx 40rpx rgba(0, 191, 165, 0.12);
-  border: 1rpx solid rgba(0, 191, 165, 0.2);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.school-plan-card:not(.disabled):active {
-  transform: translateY(2rpx);
-  box-shadow: 0 6rpx 24rpx rgba(0, 191, 165, 0.15);
-}
-
-/* 禁用状态样式 */
-.school-plan-card.disabled {
-  background: linear-gradient(135deg, #F8F9FA 0%, #F1F3F4 100%);
-  border: 1rpx solid rgba(158, 158, 158, 0.2);
-  box-shadow: 0 8rpx 32rpx rgba(158, 158, 158, 0.08);
-  opacity: 0.7;
-}
-
-.school-plan-card.disabled .plan-title {
-  color: #9E9E9E;
-}
-
-.school-plan-card.disabled .plan-desc {
-  color: #BDBDBD;
-}
-
-.school-plan-card.disabled .plan-arrow,
-.school-plan-card.disabled .plan-lock {
-  color: #9E9E9E;
-}
-
-.plan-content {
-  display: flex;
-  align-items: center;
-  gap: 28rpx;
-}
-
-.plan-icon {
-  width: 72rpx;
-  height: 72rpx;
-  background: linear-gradient(135deg, #00BFA5 0%, #006B5C 100%);
-  border-radius: 20rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32rpx;
-  color: #FFFFFF;
-  box-shadow: 0 6rpx 16rpx rgba(0, 191, 165, 0.4);
-}
-
-.plan-icon-wrapper {
-  position: relative;
-  width: 72rpx;
-  height: 72rpx;
-  flex-shrink: 0;
-}
-
-.plan-badge {
-  position: absolute;
-  top: -6rpx;
-  right: -6rpx;
-  background: #00BFA5;
-  color: #FFFFFF;
-  font-size: 20rpx;
-  font-weight: 800;
-  padding: 4rpx 12rpx;
-  border-radius: 9999rpx;
-  line-height: 1;
-  transform: scale(0.9);
-  border: 2rpx solid #FFFFFF;
-  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.2);
-}
-
-.plan-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 12rpx;
-}
-
-.plan-title {
-  font-size: 34rpx;
-  font-weight: 800;
-  color: #191C1E;
-  font-family: 'WenQuanYi Zen Hei';
-  letter-spacing: 0.5rpx;
-}
-
-.plan-desc {
-  font-size: 26rpx;
-  color: #64748B;
-  font-weight: 500;
-  line-height: 1.4;
-}
-
-.plan-tag {
-  background: linear-gradient(135deg, rgba(0, 191, 165, 0.1) 0%, rgba(0, 107, 92, 0.1) 100%);
-  color: #00BFA5;
-  font-size: 22rpx;
-  font-weight: 700;
-  padding: 6rpx 16rpx;
-  border-radius: 9999rpx;
-  align-self: flex-start;
-  margin-top: 6rpx;
-  border: 1rpx solid rgba(0, 191, 165, 0.2);
-}
-
-.plan-tag.disabled {
-  background: rgba(158, 158, 158, 0.1);
-  color: #9E9E9E;
-  border: 1rpx solid rgba(158, 158, 158, 0.2);
-}
-
-.plan-arrow {
-  font-size: 40rpx;
-  color: #00BFA5;
-  font-weight: bold;
-  transition: transform 0.2s ease;
-}
-
-.school-plan-card:not(.disabled):active .plan-arrow {
-  transform: translateX(4rpx);
-}
 
 /* 预约咨询卡片 - 中等层级 */
 .consultation-card {
@@ -684,27 +430,9 @@ export default {
 
 /* 退出登录区域 */
 .logout-section {
-  margin: 48rpx 0;
-}
-
-.logout-button {
-  background: transparent;
-  color: #64748B;
-  border: 1rpx solid #E2E8F0;
-  padding: 28rpx;
-  border-radius: 16rpx;
-  font-size: 28rpx;
-  font-weight: 500;
   text-align: center;
-  width: 100%;
-  transition: all 0.2s ease;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
-}
-
-.logout-button:active {
-  background: #F8FAFC;
-  border-color: #CBD5E1;
-  transform: translateY(1rpx);
+  margin: 48rpx 0;
+  color: #64748B;
 }
 
 </style>
