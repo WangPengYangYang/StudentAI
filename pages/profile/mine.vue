@@ -35,7 +35,7 @@
       </template>
 
       <!-- 退出登录 -->
-      <view v-if="isLoggedIn" class="logout-section" @click="handleLogout">退出登录</view>
+      <view class="logout-section" @click="handleLogout">退出登录</view>
     </scroll-view>
   </view>
 </template>
@@ -48,9 +48,9 @@ const MENU_CONFIG = [
   {
     title: '工作区',
     items: [
-      { icon: '👤', label: '用户画像', path: '/pages/profile/user-profile', needLogin: true },
-      { icon: '📋', label: '我的报告', action: 'switchTab', path: '/pages/report/report', needLogin: true },
-      { icon: '⭐', label: '收藏院校', path: '/pages/university/favorites', needLogin: true }
+      { icon: '👤', label: '用户画像', path: '/pages/profile/user-profile' },
+      { icon: '📋', label: '我的报告', action: 'switchTab', path: '/pages/report/report' },
+      { icon: '⭐', label: '收藏院校', path: '/pages/university/favorites' }
     ]
   },
   {
@@ -73,11 +73,6 @@ export default {
       menuSections: MENU_CONFIG
     };
   },
-  computed: {
-    isLoggedIn() {
-      return !!uni.getStorageSync('userToken');
-    }
-  },
   onLoad() {
     this.calculateSafeArea();
   },
@@ -93,8 +88,6 @@ export default {
     },
 
     async getUserInfo() {
-      //if (!this.isLoggedIn) return;
-
       try {
         const { code, data } = await userAPI.getUserInfo();
         if (code === 0 && data) {
@@ -109,21 +102,6 @@ export default {
     },
 
     handleMenuClick(item) {
-      // 需要登录的菜单项，检查登录状态
-      if (item.needLogin && !this.isLoggedIn) {
-        uni.showModal({
-          title: '提示',
-          content: '该功能需要登录后使用，是否前往登录？',
-          confirmText: '去登录',
-          success: (res) => {
-            if (res.confirm) {
-              uni.reLaunch({ url: '/pages/index/index' });
-            }
-          }
-        });
-        return;
-      }
-
       // 根据 action 类型执行不同跳转
       if (item.action === 'switchTab') {
         uni.switchTab({ url: item.path });
@@ -140,7 +118,10 @@ export default {
           if (res.confirm) {
             this.clearUserData();
             uni.showToast({ title: '退出成功', icon: 'success' });
-            setTimeout(() => uni.reLaunch({ url: '/pages/index/index' }), 1500);
+            // 退出后直接回到首页
+            setTimeout(() => {
+              uni.reLaunch({ url: '/pages/index/index' });
+            }, 1000);
           }
         }
       });
@@ -155,11 +136,6 @@ export default {
     },
 
     async editAvatar() {
-      if (!this.isLoggedIn) {
-        uni.showToast({ title: '请先登录', icon: 'none' });
-        return;
-      }
-
       try {
         const avatar = await this.chooseAvatar();
         if (avatar) {
@@ -171,11 +147,6 @@ export default {
     },
 
     async editNickname() {
-      if (!this.isLoggedIn) {
-        uni.showToast({ title: '请先登录', icon: 'none' });
-        return;
-      }
-
       try {
         const nickname = await this.inputNickname();
         if (nickname) {

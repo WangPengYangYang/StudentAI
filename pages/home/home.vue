@@ -2,11 +2,7 @@
   <view class="home-container">
     <!-- 顶部导航栏 -->
     <view class="header">
-      <view class="app-brand">
-        <view class="brand-logo"></view>
-        <text class="brand-name">学者·策展人</text>
-      </view>
-      <image class="avatar-image" src="/static/logo.jpeg" mode="aspectFill"></image>
+      <text class="header-title">首页</text>
     </view>
 
     <scroll-view class="home-content" scroll-y>
@@ -250,7 +246,7 @@ export default {
   right: 0;
   z-index: 100;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   padding: calc(var(--status-bar-height) + 32rpx) 48rpx 32rpx 48rpx;
   background: rgba(255, 255, 255, 0.95);
@@ -258,31 +254,10 @@ export default {
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
 }
 
-.app-brand {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
-}
-
-.brand-logo {
-  width: 32rpx;
-  height: 32rpx;
-  background: #00BFA5;
-  border-radius: 50%;
-}
-
-.brand-name {
-  font-size: 32rpx;
-  font-weight: 800;
+.header-title {
+  font-size: 36rpx;
+  font-weight: 700;
   color: #1A1A1A;
-  letter-spacing: -0.025em;
-}
-
-.avatar-image {
-  width: 64rpx;
-  height: 64rpx;
-  border-radius: 50%;
-  border: 2rpx solid rgba(187, 202, 196, 0.2);
 }
 
 .home-content {
@@ -291,7 +266,7 @@ export default {
   width: 100%;
   box-sizing: border-box;
   /* 为固定头部留出空间：状态栏高度 + 上下padding + 内容高度 */
-  margin-top: calc(var(--status-bar-height) + 32rpx + 64rpx + 32rpx);
+  margin-top: calc(var(--status-bar-height) + 32rpx + 64rpx);
 }
 
 /* 用户进度卡片 */
