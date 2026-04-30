@@ -1,7 +1,7 @@
 <template>
   <view class="create-profile-container">
     <!-- 顶部导航栏 -->
-    <view class="page-header page-header--sticky">
+    <view class="page-header">
       <view class="page-header__content">
         <view class="page-header__left" @click="goBack">
           <image class="page-header__back-icon" src="/static/left.png" mode="aspectFit"></image>
@@ -22,7 +22,7 @@
       </view>
     </view>
 
-    <scroll-view class="form-content" scroll-y="true" :style="{paddingBottom: safeAreaBottom}">
+    <scroll-view class="form-content page-content" scroll-y="true" :style="{paddingBottom: safeAreaBottom}">
       <!-- 第1步：学术背景 -->
       <view v-if="currentStep === 1" class="step-content">
         <view class="form-section">

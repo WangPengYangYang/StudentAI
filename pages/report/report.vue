@@ -34,14 +34,11 @@
             :key="report.report_id"
             class="report-card"
           >
-            <!-- 卡片头部：标题与分享 -->
+            <!-- 卡片头部：标题 -->
             <view class="report-card__header">
               <view class="report-card__info">
                 <text class="report-card__title">{{ report.title }}</text>
                 <text class="report-card__date">{{ formatDate(report.generated_at) }}</text>
-              </view>
-              <view class="report-card__share" @click="shareReport(report.share_code)">
-                <image class="share-icon" src="/static/share.svg" mode="aspectFit" />
               </view>
             </view>
 
@@ -59,26 +56,6 @@
                 >
                   <text class="stat-grid__value">{{ report[stat.key] || 0 }}</text>
                   <text class="stat-grid__label">{{ stat.label }}</text>
-                </view>
-              </view>
-
-              <!-- 推荐院校 -->
-              <view class="school-list">
-                <text class="school-list__title">推荐院校</text>
-                <view class="school-list__items">
-                  <view
-                    v-for="school in report.schools.slice(0, 3)"
-                    :key="school.school_id"
-                    class="school-list__item"
-                  >
-                    <text class="school-list__name">{{ school.school_name }}</text>
-                    <text :class="['school-list__type', `school-list__type--${school.match_type}`]">
-                      {{ getTypeText(school.match_type) }}
-                    </text>
-                  </view>
-                  <view v-if="report.schools.length > 3" class="school-list__more">
-                    <text>+{{ report.schools.length - 3 }} 所更多院校</text>
-                  </view>
                 </view>
               </view>
             </view>
@@ -155,13 +132,6 @@ export default {
     },
     viewReportDetails(reportId) {
       uni.navigateTo({ url: `/pages/report/detail?reportId=${reportId}` })
-    },
-    shareReport(shareCode) {
-      const shareUrl = `https://example.com/share/${shareCode}`
-      uni.setClipboardData({
-        data: shareUrl,
-        success: () => this.showToast('分享链接已复制', 'success')
-      })
     },
     openChat() {
       uni.switchTab({ url: '/pages/chat/chat' })
@@ -280,16 +250,6 @@ export default {
   color: #94A3B8;
 }
 
-.report-card__share {
-  margin-left: 24rpx;
-  padding: 8rpx;
-}
-
-.share-icon {
-  width: 30rpx;
-  height: 30rpx;
-}
-
 /* 卡片内容 */
 .report-card__body {
   margin-bottom: 24rpx;
@@ -343,69 +303,6 @@ export default {
 
 .stat-grid__label {
   font-size: 22rpx;
-  color: #6B7280;
-}
-
-/* ==================== 学校列表 ==================== */
-.school-list {
-  margin-top: 24rpx;
-}
-
-.school-list__title {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #191C1E;
-  margin-bottom: 16rpx;
-  display: block;
-}
-
-.school-list__items {
-  display: flex;
-  flex-direction: column;
-  gap: 12rpx;
-}
-
-.school-list__item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16rpx;
-  background: #F8F9FA;
-  border-radius: 16rpx;
-}
-
-.school-list__name {
-  font-size: 26rpx;
-  color: #374151;
-  flex: 1;
-}
-
-.school-list__type {
-  font-size: 24rpx;
-  font-weight: 600;
-  padding: 4rpx 12rpx;
-  border-radius: 12rpx;
-}
-
-.school-list__type--reach {
-  background: rgba(255, 107, 107, 0.1);
-  color: #FF6B6B;
-}
-
-.school-list__type--match {
-  background: rgba(0, 191, 165, 0.1);
-  color: #00BFA5;
-}
-
-.school-list__type--safe {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3B82F6;
-}
-
-.school-list__more {
-  text-align: center;
-  padding: 16rpx;
-  font-size: 24rpx;
   color: #6B7280;
 }
 
