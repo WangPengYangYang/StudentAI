@@ -244,11 +244,15 @@ export default {
 
 /* 顶部导航栏 */
 .header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 32rpx 48rpx;
-  padding-top: calc(var(--status-bar-height) + 32rpx);
+  padding: calc(var(--status-bar-height) + 32rpx) 48rpx 32rpx 48rpx;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(24px);
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
@@ -286,6 +290,8 @@ export default {
   padding: 32rpx 24rpx 120rpx;
   width: 100%;
   box-sizing: border-box;
+  /* 为固定头部留出空间：状态栏高度 + 上下padding + 内容高度 */
+  margin-top: calc(var(--status-bar-height) + 32rpx + 64rpx + 32rpx);
 }
 
 /* 用户进度卡片 */

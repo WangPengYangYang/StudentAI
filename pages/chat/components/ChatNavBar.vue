@@ -32,9 +32,14 @@ export default {
 
 <style scoped>
 .nav-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
   background: #FFFFFF;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.1);
-  padding-top: var(--status-bar-height);
+  padding-top: calc(var(--status-bar-height) + 32rpx);
 }
 
 .nav-content {
