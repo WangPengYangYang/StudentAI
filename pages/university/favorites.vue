@@ -198,6 +198,7 @@ export default {
   background: #FFFFFF;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
   padding: 32rpx 48rpx;
+  padding-top: calc(var(--status-bar-height) + 32rpx);
   backdrop-filter: blur(20rpx);
   position: sticky;
   top: 0;

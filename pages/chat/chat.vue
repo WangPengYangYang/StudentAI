@@ -3,6 +3,9 @@
     <!-- 顶部导航栏 -->
     <view class="nav-bar">
       <view class="nav-content">
+        <view class="nav-actions">
+          <image class="nav-button" src="/static/history.svg" @click="showConversationList"></image>
+        </view>
         <view class="agent-info">
           <view class="avatar-container">
             <image class="agent-avatar" src="/static/logo.gif"></image>
@@ -12,9 +15,7 @@
             <text class="agent-title">留学申请顾问</text>
           </view>
         </view>
-        <view class="nav-actions">
-          <image class="nav-button" src="/static/history.svg" @click="showConversationList"></image>
-        </view>
+        <view class="nav-placeholder"></view>
       </view>
       <view class="nav-divider"></view>
     </view>
@@ -31,8 +32,6 @@
                 class="conversation-item" :style="{ animationDelay: `${index * 0.05}s` }">
             <view class="conversation-info" @click.stop="selectConversation(conversation)">
               <text class="conversation-title">{{ conversation.title }}</text>
-<!--              <text class="conversation-preview">{{ conversation.last_message }}</text>-->
-<!--              <text class="conversation-time">{{ formatTime(conversation.last_updated_at) }}</text>-->
             </view>
             <view class="conversation-actions">
               <view class="message-count">{{ conversation.message_count }}条</view>
@@ -140,7 +139,7 @@ export default {
       inputText: '',
       isLoading: false,
       showUniversityCard: false,
-      showQuickReplies: true,
+      showQuickReplies: false,
       showDateIndicator: true,
       showConversationModal: false,
       currentTab: 'chat',
@@ -499,7 +498,7 @@ export default {
 .conversation-drawer {
   position: fixed;
   top: 0;
-  right: -100%;
+  left: -100%;
   width: 80%;
   height: 100%;
   background: #FFFFFF;
@@ -507,13 +506,14 @@ export default {
   flex-direction: column;
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  box-shadow: -4rpx 0 12rpx rgba(0, 0, 0, 0.1);
-  transform: translateX(20rpx) scale(0.98);
+  box-shadow: 4rpx 0 12rpx rgba(0, 0, 0, 0.1);
+  transform: translateX(-20rpx) scale(0.98);
   opacity: 0;
+  padding-top: var(--status-bar-height);
 }
 
 .conversation-drawer.drawer-open {
-  right: 0;
+  left: 0;
   transform: translateX(0) scale(1);
   opacity: 1;
 }
@@ -572,19 +572,6 @@ export default {
   color: #1A1A1A;
 }
 
-.conversation-preview {
-  font-size: 24rpx;
-  color: #666666;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.conversation-time {
-  font-size: 22rpx;
-  color: #999999;
-}
-
 .message-count {
   font-size: 22rpx;
   color: #999999;
@@ -627,6 +614,7 @@ export default {
 .nav-bar {
   background: #FFFFFF;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.1);
+  padding-top: var(--status-bar-height);
 }
 
 .nav-content {
@@ -634,12 +622,27 @@ export default {
   align-items: center;
   justify-content: space-between;
   padding: 32rpx 32rpx;
+  position: relative;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  min-width: 80rpx;
 }
 
 .agent-info {
   display: flex;
   align-items: center;
   gap: 20rpx;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.nav-placeholder {
+  min-width: 80rpx;
 }
 
 .avatar-container {
@@ -669,21 +672,9 @@ export default {
   color: #666666;
 }
 
-.nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 24rpx;
-}
-
 .nav-button {
   width: 40rpx;
   height: 40rpx;
-}
-
-.user-avatar {
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 9999rpx;
 }
 
 .nav-divider {
@@ -697,8 +688,7 @@ export default {
   box-sizing: border-box;
   flex: 1;
   overflow-y: auto;
-  padding: 32rpx 32rpx;
-  padding-bottom: 320rpx;
+  padding: 32rpx 32rpx 140rpx 32rpx;
 }
 
 .date-indicator {
@@ -850,7 +840,7 @@ export default {
 /* 底部操作区域 */
 .bottom-actions {
   position: fixed;
-  bottom: 80rpx;
+  bottom: 0;
   left: 0;
   right: 0;
   background: #FFFFFF;

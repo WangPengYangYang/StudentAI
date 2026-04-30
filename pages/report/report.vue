@@ -205,6 +205,7 @@ export default {
   align-items: center;
   margin-bottom: 32rpx;
   padding: 0 8rpx;
+  padding-top: calc(var(--status-bar-height) + 32rpx);
 }
 
 .header .title {

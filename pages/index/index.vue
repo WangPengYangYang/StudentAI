@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import {apiUtils, authAPI, utils} from '../../api/index.js'
+import {apiUtils, authAPI} from '../../api/index.js'
 
 	export default {
 		data() {

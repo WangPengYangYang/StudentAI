@@ -276,6 +276,7 @@ export default {
 .nav-bar {
   background-color: #fff;
   padding: 32rpx 48rpx;
+  padding-top: calc(var(--status-bar-height) + 32rpx);
   position: sticky;
   top: 0;
   z-index: 100;

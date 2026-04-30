@@ -252,6 +252,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 32rpx 48rpx;
+  padding-top: calc(var(--status-bar-height) + 32rpx);
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(24px);
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
