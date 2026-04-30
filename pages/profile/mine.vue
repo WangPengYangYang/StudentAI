@@ -33,9 +33,9 @@
             class="menu-item"
             @click="handleMenuClick(item)"
           >
-            <view class="menu-icon">{{ item.icon }}</view>
+            <image class="menu-icon" :src="item.icon" mode="aspectFit" />
             <text class="menu-label">{{ item.label }}</text>
-            <view class="menu-arrow">›</view>
+            <image class="menu-arrow" src="/static/right.png" mode="aspectFit" />
           </view>
         </view>
       </template>
@@ -54,16 +54,16 @@ const MENU_CONFIG = [
   {
     title: '工作区',
     items: [
-      { icon: '👤', label: '用户画像', path: '/pages/profile/user-profile' },
-      { icon: '📋', label: '我的报告', action: 'switchTab', path: '/pages/report/report' },
-      { icon: '⭐', label: '收藏院校', path: '/pages/university/favorites' }
+      { icon: '/static/profile.png', label: '用户画像', path: '/pages/profile/user-profile' },
+      { icon: '/static/myreport.png', label: '我的报告', action: 'switchTab', path: '/pages/report/report' },
+      { icon: '/static/favorite.png', label: '收藏院校', path: '/pages/university/favorites' }
     ]
   },
   {
     title: '支持与帮助',
     items: [
-      { icon: '💬', label: '意见反馈', path: '/pages/feedback/feedback' },
-      { icon: 'ℹ️', label: '关于我们', path: '/pages/about/about' }
+      { icon: '/static/feedback.png', label: '意见反馈', path: '/pages/feedback/feedback' },
+      { icon: '/static/about.png', label: '关于我们', path: '/pages/about/about' }
     ]
   }
 ];
@@ -343,11 +343,9 @@ export default {
 }
 
 .menu-icon {
-  font-size: 40rpx;
-  margin-right: 24rpx;
   width: 44rpx;
-  text-align: center;
-  color: #006B5C;
+  height: 44rpx;
+  margin-right: 24rpx;
 }
 
 .menu-label {
@@ -358,9 +356,8 @@ export default {
 }
 
 .menu-arrow {
-  font-size: 36rpx;
-  color: #94A3B8;
-  font-weight: bold;
+  width: 24rpx;
+  height: 24rpx;
 }
 
 .section-title {

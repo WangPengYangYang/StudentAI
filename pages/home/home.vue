@@ -230,8 +230,8 @@ export default {
       })
     },
 
-    viewUniversity(uni) {
-      uni.navigateTo({ url: `/pages/university/detail?id=${uni.id}` })
+    viewUniversity(school) {
+      uni.navigateTo({ url: `/pages/university/detail?id=${school.id}` })
     }
   }
 }
