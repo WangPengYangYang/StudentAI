@@ -163,30 +163,40 @@ export default {
       }
     },
 
-    async chooseAvatar() {
-      try {
-        const [err, res] = await uni.showActionSheet({
-          itemList: ['拍照', '从相册选择']
+    chooseAvatar() {
+      return new Promise((resolve) => {
+        uni.showActionSheet({
+          itemList: ['拍照', '从相册选择'],
+          success: (res) => {
+            const sourceType = res.tapIndex === 0 ? ['camera'] : ['album'];
+            uni.chooseImage({
+              count: 1,
+              sizeType: ['compressed'],
+              sourceType,
+              success: async (chooseRes) => {
+                if (chooseRes.tempFilePaths?.length) {
+                  const base64 = await this.imageToBase64(chooseRes.tempFilePaths[0]);
+                  resolve(base64);
+                } else {
+                  resolve(null);
+                }
+              },
+              fail: (err) => {
+                console.error('选择图片失败:', err);
+                // 用户取消不提示错误
+                if (err.errMsg?.indexOf('cancel') === -1) {
+                  uni.showToast({ title: '选择图片失败', icon: 'none' });
+                }
+                resolve(null);
+              }
+            });
+          },
+          fail: (err) => {
+            console.error('显示操作菜单失败:', err);
+            resolve(null);
+          }
         });
-        if (err) return null;
-
-        const sourceType = res.tapIndex === 0 ? ['camera'] : ['album'];
-        const [chooseErr, chooseRes] = await uni.chooseImage({
-          count: 1,
-          sizeType: ['compressed'],
-          sourceType
-        });
-
-        if (chooseErr || !chooseRes.tempFilePaths?.length) {
-          return null;
-        }
-
-        return await this.imageToBase64(chooseRes.tempFilePaths[0]);
-      } catch (error) {
-        console.error('选择头像失败:', error);
-        uni.showToast({ title: '选择头像失败', icon: 'none' });
-        return null;
-      }
+      });
     },
 
     imageToBase64(tempFilePath) {
