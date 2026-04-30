@@ -13,53 +13,54 @@
         </view>
         <view class="user-info">
           <text class="user-name" @click="editNickname">{{ userInfo.nickName || '未登录' }}</text>
-          <image src="/static/edit.svg" class="edit-icon" @click="editNickname" />
+          <image v-if="isLoggedIn" src="/static/edit.svg" class="edit-icon" @click="editNickname" />
         </view>
       </view>
 
       <!-- 功能菜单 -->
-      <view class="section-title">工作区</view>
-      <view class="menu-section">
-        <view class="menu-item" @click="navigateTo('/pages/profile/user-profile')">
-          <view class="menu-icon">👤</view>
-          <text class="menu-label">用户画像</text>
-          <view class="menu-arrow">›</view>
+      <template v-for="section in menuSections" :key="section.title">
+        <view class="section-title">{{ section.title }}</view>
+        <view class="menu-section">
+          <view
+            v-for="item in section.items"
+            :key="item.label"
+            class="menu-item"
+            @click="handleMenuClick(item)"
+          >
+            <view class="menu-icon">{{ item.icon }}</view>
+            <text class="menu-label">{{ item.label }}</text>
+            <view class="menu-arrow">›</view>
+          </view>
         </view>
-        <view class="menu-item" @click="switchToReport">
-          <view class="menu-icon">📋</view>
-          <text class="menu-label">我的报告</text>
-          <view class="menu-arrow">›</view>
-        </view>
-        <view class="menu-item" @click="navigateTo('/pages/university/favorites')">
-          <view class="menu-icon">⭐</view>
-          <text class="menu-label">收藏院校</text>
-          <view class="menu-arrow">›</view>
-        </view>
-      </view>
-
-      <!-- 帮助与支持 -->
-      <view class="section-title">支持与帮助</view>
-      <view class="menu-section">
-        <view class="menu-item" @click="navigateTo('/pages/feedback/feedback')">
-          <view class="menu-icon">💬</view>
-          <text class="menu-label">意见反馈</text>
-          <view class="menu-arrow">›</view>
-        </view>
-        <view class="menu-item" @click="navigateTo('/pages/about/about')">
-          <view class="menu-icon">ℹ️</view>
-          <text class="menu-label">关于我们</text>
-          <view class="menu-arrow">›</view>
-        </view>
-      </view>
+      </template>
 
       <!-- 退出登录 -->
-      <view class="logout-section" @click="handleLogout">退出登录</view>
+      <view v-if="isLoggedIn" class="logout-section" @click="handleLogout">退出登录</view>
     </scroll-view>
   </view>
 </template>
 
 <script>
 import { userAPI } from "@/api/index.js";
+
+// 菜单配置
+const MENU_CONFIG = [
+  {
+    title: '工作区',
+    items: [
+      { icon: '👤', label: '用户画像', path: '/pages/profile/user-profile', needLogin: true },
+      { icon: '📋', label: '我的报告', action: 'switchTab', path: '/pages/report/report', needLogin: true },
+      { icon: '⭐', label: '收藏院校', path: '/pages/university/favorites', needLogin: true }
+    ]
+  },
+  {
+    title: '支持与帮助',
+    items: [
+      { icon: '💬', label: '意见反馈', path: '/pages/feedback/feedback' },
+      { icon: 'ℹ️', label: '关于我们', path: '/pages/about/about' }
+    ]
+  }
+];
 
 export default {
   data() {
@@ -68,8 +69,14 @@ export default {
       userInfo: {
         nickName: '',
         avatarUrl: ''
-      }
+      },
+      menuSections: MENU_CONFIG
     };
+  },
+  computed: {
+    isLoggedIn() {
+      return !!uni.getStorageSync('userToken');
+    }
   },
   onLoad() {
     this.calculateSafeArea();
@@ -86,6 +93,8 @@ export default {
     },
 
     async getUserInfo() {
+      //if (!this.isLoggedIn) return;
+
       try {
         const { code, data } = await userAPI.getUserInfo();
         if (code === 0 && data) {
@@ -99,12 +108,28 @@ export default {
       }
     },
 
-    navigateTo(url) {
-      uni.navigateTo({ url });
-    },
+    handleMenuClick(item) {
+      // 需要登录的菜单项，检查登录状态
+      if (item.needLogin && !this.isLoggedIn) {
+        uni.showModal({
+          title: '提示',
+          content: '该功能需要登录后使用，是否前往登录？',
+          confirmText: '去登录',
+          success: (res) => {
+            if (res.confirm) {
+              uni.reLaunch({ url: '/pages/index/index' });
+            }
+          }
+        });
+        return;
+      }
 
-    switchToReport() {
-      uni.switchTab({ url: '/pages/report/report' });
+      // 根据 action 类型执行不同跳转
+      if (item.action === 'switchTab') {
+        uni.switchTab({ url: item.path });
+      } else {
+        uni.navigateTo({ url: item.path });
+      }
     },
 
     handleLogout() {
@@ -113,9 +138,7 @@ export default {
         content: '确定要退出登录吗？',
         success: (res) => {
           if (res.confirm) {
-            uni.removeStorageSync('userToken');
-            uni.removeStorageSync('userInfo');
-            this.userInfo = { nickName: '', avatarUrl: '' };
+            this.clearUserData();
             uni.showToast({ title: '退出成功', icon: 'success' });
             setTimeout(() => uni.reLaunch({ url: '/pages/index/index' }), 1500);
           }
@@ -123,7 +146,20 @@ export default {
       });
     },
 
+    clearUserData() {
+      // 清除所有用户相关存储
+      uni.removeStorageSync('userToken');
+      uni.removeStorageSync('refreshToken');
+      uni.removeStorageSync('userInfo');
+      this.userInfo = { nickName: '', avatarUrl: '' };
+    },
+
     async editAvatar() {
+      if (!this.isLoggedIn) {
+        uni.showToast({ title: '请先登录', icon: 'none' });
+        return;
+      }
+
       try {
         const avatar = await this.chooseAvatar();
         if (avatar) {
@@ -135,6 +171,11 @@ export default {
     },
 
     async editNickname() {
+      if (!this.isLoggedIn) {
+        uni.showToast({ title: '请先登录', icon: 'none' });
+        return;
+      }
+
       try {
         const nickname = await this.inputNickname();
         if (nickname) {
@@ -145,32 +186,30 @@ export default {
       }
     },
 
-    chooseAvatar() {
-      return new Promise((resolve) => {
-        uni.showActionSheet({
-          itemList: ['拍照', '从相册选择'],
-          success: async (res) => {
-            try {
-              const sourceType = res.tapIndex === 0 ? ['camera'] : ['album'];
-              const { tempFilePaths } = await uni.chooseImage({
-                count: 1,
-                sizeType: ['compressed'],
-                sourceType
-              });
-              if (tempFilePaths && tempFilePaths.length) {
-                resolve(await this.imageToBase64(tempFilePaths[0]));
-              } else {
-                resolve(null);
-              }
-            } catch (error) {
-              console.error('选择头像失败:', error);
-              uni.showToast({ title: '选择头像失败', icon: 'none' });
-              resolve(null);
-            }
-          },
-          fail: () => resolve(null)
+    async chooseAvatar() {
+      try {
+        const [err, res] = await uni.showActionSheet({
+          itemList: ['拍照', '从相册选择']
         });
-      });
+        if (err) return null;
+
+        const sourceType = res.tapIndex === 0 ? ['camera'] : ['album'];
+        const [chooseErr, chooseRes] = await uni.chooseImage({
+          count: 1,
+          sizeType: ['compressed'],
+          sourceType
+        });
+
+        if (chooseErr || !chooseRes.tempFilePaths?.length) {
+          return null;
+        }
+
+        return await this.imageToBase64(chooseRes.tempFilePaths[0]);
+      } catch (error) {
+        console.error('选择头像失败:', error);
+        uni.showToast({ title: '选择头像失败', icon: 'none' });
+        return null;
+      }
     },
 
     imageToBase64(tempFilePath) {
@@ -188,30 +227,26 @@ export default {
       });
     },
 
-    inputNickname() {
-      return new Promise((resolve) => {
-        uni.showModal({
-          title: '修改昵称',
-          content: '请输入新的昵称',
-          editable: true,
-          placeholderText: this.userInfo.nickName || '请输入昵称',
-          success: (res) => resolve(res.confirm && res.content && res.content.trim() || null)
-        });
+    async inputNickname() {
+      const [err, res] = await uni.showModal({
+        title: '修改昵称',
+        content: '请输入新的昵称',
+        editable: true,
+        placeholderText: this.userInfo.nickName || '请输入昵称'
       });
+
+      if (err || !res.confirm || !res.content?.trim()) {
+        return null;
+      }
+      return res.content.trim();
     },
 
     async saveUserInfo(updateData) {
       const { nickname, avatar } = updateData;
 
       // 验证数据
-      if (nickname && !nickname.trim()) {
+      if (nickname !== undefined && !nickname.trim()) {
         uni.showToast({ title: '请输入昵称', icon: 'none' });
-        return;
-      }
-
-      // 检查是否有修改
-      if (nickname === this.userInfo.nickName || avatar === this.userInfo.avatarUrl) {
-        uni.showToast({ title: '没有修改内容', icon: 'none' });
         return;
       }
 
@@ -239,7 +274,6 @@ export default {
 
 <style scoped>
 .profile-container {
-  flex: 1;
   background: linear-gradient(180deg, #F7F9FC 0%, #FFFFFF 100%);
   min-height: 100vh;
 }
@@ -260,7 +294,7 @@ export default {
 }
 
 .profile-content {
-  flex: 1;
+  height: calc(100vh - 100rpx);
   padding: 24rpx 32rpx;
   box-sizing: border-box;
 }
@@ -374,6 +408,8 @@ export default {
 .logout-section {
   text-align: center;
   margin: 48rpx 0;
+  padding: 24rpx 0;
   color: #64748B;
+  font-size: 28rpx;
 }
 </style>

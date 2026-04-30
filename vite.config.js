@@ -11,7 +11,7 @@ export default defineConfig({
         port: 8888,
         proxy: {
             '/api/v1': {
-                target: 'https://62.234.174.126',
+                target: 'https://pre.schoolmate.website',
                 changeOrigin: true,
                 secure: false,
                 rewrite: path => path.replace(/^\/api\/v1/, '/api/v1')

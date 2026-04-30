@@ -1,4 +1,7 @@
-const BASE_URL = '/api/v1'
+
+// const BASE_URL = '/api/v1'  // H5环境使用代理
+const BASE_URL = 'https://pre.schoolmate.website/api/v1'  // 小程序等环境使用完整域名
+// #endif
 const TOKEN = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySUQiOjEsInRpZXIiOiJmcmVlIiwidG9rZW5UeXBlIjoiYWNjZXNzIiwiaXNzIjoic3R1ZHktYXNzaXN0YW50LXN0YWdpbmciLCJpYXQiOjE3NzY1OTQxOTMsImV4cCI6MTgwODEzMDE5M30.JE_s0mTvhY3tl-kTOpBckgoE3sp6mdvXs83JLFWlHh8'
 
 const request = (options) => {
