@@ -204,18 +204,25 @@ export default {
       });
     },
 
-    async inputNickname() {
-      const [err, res] = await uni.showModal({
-        title: '修改昵称',
-        content: '请输入新的昵称',
-        editable: true,
-        placeholderText: this.userInfo.nickName || '请输入昵称'
+    inputNickname() {
+      return new Promise((resolve) => {
+        uni.showModal({
+          title: '修改昵称',
+          editable: true,
+          placeholderText: this.userInfo.nickName || '请输入昵称',
+          success: (res) => {
+            if (res.confirm && res.content && res.content.trim()) {
+              resolve(res.content.trim());
+            } else {
+              resolve(null);
+            }
+          },
+          fail: (err) => {
+            console.error('showModal fail:', err);
+            resolve(null);
+          }
+        });
       });
-
-      if (err || !res.confirm || !res.content?.trim()) {
-        return null;
-      }
-      return res.content.trim();
     },
 
     async saveUserInfo(updateData) {
