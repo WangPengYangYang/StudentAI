@@ -6,12 +6,6 @@ const BASE_PATH = ''
  */
 export const authAPI = {
   /**
-   * 匿名登录
-   * @returns {Promise}
-   */
-  anonymousLogin: () => request.post(`${BASE_PATH}/auth/anonymous`),
-
-  /**
    * 微信登录
    * @param {string} code - 微信登录 code
    * @returns {Promise}
@@ -30,10 +24,6 @@ export const authAPI = {
  * 用户画像模块 API
  */
 export const profileAPI = {
-  /**
-   * 获取用户画像
-   * @returns {Promise}
-   */
   getProfile: () => request.get(`${BASE_PATH}/profile`),
 
   /**
@@ -117,49 +107,6 @@ export const chatAPI = {
    * @returns {Promise}
    */
   deleteConversation: (conversationId) => request.delete(`${BASE_PATH}/chat/conversations/${conversationId}`)
-}
-
-/**
- * 选校方案模块 API
- */
-export const planAPI = {
-  /**
-   * 生成选校方案
-   * @param {string|null} conversationId - 关联对话ID
-   * @param {Object} preferences - 偏好设置
-   * @returns {Promise}
-   */
-  generatePlan: (conversationId, preferences) => request.post(`${BASE_PATH}/plan/generate`, {
-    conversation_id: conversationId,
-    preferences
-  }),
-
-  /**
-   * 获取当前方案
-   * @returns {Promise}
-   */
-  getCurrentPlan: () => request.get(`${BASE_PATH}/plan/current`),
-
-  /**
-   * 获取历史方案列表
-   * @param {number} page - 页码
-   * @param {number} size - 每页大小
-   * @returns {Promise}
-   */
-  getPlanList: (page = 1, size = 10) => request.get(`${BASE_PATH}/plan/list`, { page, size }),
-
-  /**
-   * 微调方案
-   * @param {string} planId - 方案ID
-   * @param {string} conversationId - 会话ID
-   * @param {string} message - 调整消息
-   * @returns {Promise}
-   */
-  refinePlan: (planId, conversationId, message) => request.post(`${BASE_PATH}/plan/refine`, {
-    plan_id: planId,
-    conversation_id: conversationId,
-    message
-  })
 }
 
 /**
@@ -291,18 +238,6 @@ export const consultationAPI = {
  */
 export const apiUtils = {
   /**
-   * 设置基础URL
-   * @param {string} url - 基础URL
-   */
-  setBaseUrl: (url) => request.setBaseUrl(url),
-
-  /**
-   * 获取基础URL
-   * @returns {string}
-   */
-  getBaseUrl: () => request.getBaseUrl(),
-
-  /**
    * 处理错误信息
    * @param {Error} error - 错误对象
    * @returns {string} 错误消息
@@ -316,18 +251,4 @@ export const apiUtils = {
     }
     return '网络请求失败，请检查网络连接'
   }
-}
-
-// 默认导出所有API
-export default {
-  auth: authAPI,
-  profile: profileAPI,
-  chat: chatAPI,
-  plan: planAPI,
-  school: schoolAPI,
-  country: countryAPI,
-  user: userAPI,
-  report: reportAPI,
-  consultation: consultationAPI,
-  utils: apiUtils
 }

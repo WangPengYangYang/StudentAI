@@ -56,7 +56,7 @@
 </template>
 
 <script>
-	import api from '../../api/index.js'
+import {apiUtils, authAPI, utils} from '../../api/index.js'
 
 	export default {
 		data() {
@@ -123,7 +123,7 @@
           });
 
 					// 调用后端微信登录接口
-					const result = await api.auth.wechatLogin(loginRes.code);
+					const result = await authAPI.wechatLogin(loginRes.code);
 					console.log('后端授权成功', result);
 
 					// 登录成功处理
@@ -133,7 +133,7 @@
 					console.log('微信登录失败', error);
 					uni.hideLoading();
 					uni.showToast({
-						title: api.utils.getErrorMessage(error),
+						title: apiUtils.getErrorMessage(error),
 						icon: 'none'
 					});
 				}
