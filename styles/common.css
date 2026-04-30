@@ -74,7 +74,7 @@ page {
 
 /* 页面内容区域 - 为固定头部留出空间 */
 .page-content {
-  margin-top: calc(var(--status-bar-height) + 32rpx + 64rpx + 36rpx);
+  margin-top: var(--status-bar-height);
 }
 
 /* sticky顶部栏（非fixed） */

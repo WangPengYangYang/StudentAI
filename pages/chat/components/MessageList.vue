@@ -69,8 +69,8 @@ export default {
   flex: 1;
   overflow-y: auto;
   padding: 32rpx 32rpx 140rpx 32rpx;
-  /* 为固定头部留出空间：状态栏高度 + 上下padding + 头像高度 + 分隔线 */
-  margin-top: calc(var(--status-bar-height) + 32rpx + 80rpx + 32rpx + 1rpx);
+  /* 为固定头部留出空间：状态栏高度*/
+  margin-top: var(--status-bar-height);
 }
 
 .date-indicator {
