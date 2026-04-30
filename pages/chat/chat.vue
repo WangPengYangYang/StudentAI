@@ -1,5 +1,19 @@
 <template>
   <view class="chat-container">
+    <!-- 动态背景 -->
+    <view class="chat-background">
+      <view class="bg-gradient"></view>
+      <view class="bg-particles">
+        <view class="particle particle-1"></view>
+        <view class="particle particle-2"></view>
+        <view class="particle particle-3"></view>
+        <view class="particle particle-4"></view>
+        <view class="particle particle-5"></view>
+      </view>
+      <view class="bg-glow bg-glow-1"></view>
+      <view class="bg-glow bg-glow-2"></view>
+    </view>
+
     <!-- 顶部导航栏 -->
     <chat-nav-bar @show-history="showConversationList" />
 
@@ -289,6 +303,161 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #F8F9FA;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 动态背景 */
+.chat-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* 渐变背景 - 浅色科技风 */
+.bg-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg,
+    #f8f9ff 0%,
+    #f0f4ff 30%,
+    #e8f0ff 60%,
+    #f5f8ff 100%);
+}
+
+/* 粒子效果 */
+.bg-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.particle {
+  position: absolute;
+  width: 6rpx;
+  height: 6rpx;
+  background: #667eea;
+  border-radius: 50%;
+  opacity: 0.4;
+  animation: float 15s infinite ease-in-out;
+  box-shadow: 0 0 10rpx rgba(102, 126, 234, 0.3);
+}
+
+.particle-1 {
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+  animation-duration: 18s;
+}
+
+.particle-2 {
+  top: 40%;
+  left: 80%;
+  animation-delay: 3s;
+  animation-duration: 20s;
+  background: #764ba2;
+  box-shadow: 0 0 10rpx rgba(118, 75, 162, 0.3);
+}
+
+.particle-3 {
+  top: 60%;
+  left: 30%;
+  animation-delay: 6s;
+  animation-duration: 16s;
+  background: #f093fb;
+  box-shadow: 0 0 10rpx rgba(240, 147, 251, 0.3);
+}
+
+.particle-4 {
+  top: 80%;
+  left: 70%;
+  animation-delay: 9s;
+  animation-duration: 22s;
+}
+
+.particle-5 {
+  top: 30%;
+  left: 50%;
+  animation-delay: 12s;
+  animation-duration: 19s;
+  background: #764ba2;
+  box-shadow: 0 0 10rpx rgba(118, 75, 162, 0.3);
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0.3;
+  }
+  25% {
+    transform: translateY(-100rpx) translateX(50rpx);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-50rpx) translateX(-30rpx);
+    opacity: 0.6;
+  }
+  75% {
+    transform: translateY(-150rpx) translateX(20rpx);
+    opacity: 0.4;
+  }
+}
+
+/* 发光效果 */
+.bg-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100rpx);
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.bg-glow-1 {
+  top: -200rpx;
+  right: -100rpx;
+  width: 500rpx;
+  height: 500rpx;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  animation: glowPulse1 8s infinite ease-in-out;
+}
+
+.bg-glow-2 {
+  bottom: 300rpx;
+  left: -150rpx;
+  width: 400rpx;
+  height: 400rpx;
+  background: linear-gradient(135deg, #a8b4ff, #667eea);
+  animation: glowPulse2 10s infinite ease-in-out;
+}
+
+@keyframes glowPulse1 {
+  0%, 100% {
+    opacity: 0.15;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.25;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes glowPulse2 {
+  0%, 100% {
+    opacity: 0.12;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.2;
+    transform: scale(1.15);
+  }
 }
 </style>

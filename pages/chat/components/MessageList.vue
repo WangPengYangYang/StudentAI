@@ -2,24 +2,30 @@
   <scroll-view class="chat-content" scroll-y="true" :scroll-into-view="scrollToView">
     <!-- 日期指示器 -->
     <view class="date-indicator" v-if="showDateIndicator">
-      <text>{{ currentDate }}</text>
+      <view class="date-badge">
+        <text>{{ currentDate }}</text>
+      </view>
     </view>
 
     <!-- 消息列表 -->
     <view v-for="(message, index) in messages" :key="index" :id="'message-' + index"
           :class="['message-row', message.type + '-message']">
-      <view class="message-bubble">
-        <!-- 用户消息使用普通文本渲染 -->
-        <text v-if="message.type === 'user'">{{ message.content }}</text>
-        <!-- AI消息使用zero-markdown-view组件渲染 -->
-        <zero-markdown-view v-else :markdown="message.content" :aiMode="true" />
+      <view class="message-bubble-wrapper">
+        <view class="message-bubble" :class="message.type + '-bubble'">
+          <!-- 用户消息使用普通文本渲染 -->
+          <text v-if="message.type === 'user'" class="message-text user-text">{{ message.content }}</text>
+          <!-- AI消息使用zero-markdown-view组件渲染 -->
+          <zero-markdown-view v-else :markdown="message.content" :aiMode="true" class="ai-markdown" />
+        </view>
+        <view class="message-time" v-if="message.time">
+          <text>{{ message.time }}</text>
+        </view>
       </view>
-      <view class="message-time" v-if="message.time">{{ message.time }}</view>
     </view>
 
     <!-- 加载状态 -->
     <view class="loading-indicator" v-if="isLoading">
-      <text>Scholar AI 正在思考</text>
+      <text class="loading-text">Scholar AI 正在思考</text>
       <view class="typing-dots">
         <view class="dot"></view>
         <view class="dot"></view>
@@ -68,91 +74,164 @@ export default {
   box-sizing: border-box;
   flex: 1;
   overflow-y: auto;
-  padding: 32rpx 32rpx 140rpx 32rpx;
-  /* 为固定头部留出空间：状态栏高度*/
-  margin-top: var(--status-bar-height);
+  padding: 32rpx 32rpx 160rpx 32rpx;
+  margin-top: calc(var(--status-bar-height) + 160rpx);
 }
 
+/* 日期指示器 */
 .date-indicator {
   display: flex;
   justify-content: center;
   margin-bottom: 40rpx;
 }
 
-.date-indicator text {
-  background: rgba(0, 0, 0, 0.05);
-  padding: 12rpx 24rpx;
+.date-badge {
+  background: rgba(102, 126, 234, 0.08);
+  backdrop-filter: blur(10rpx);
+  padding: 12rpx 32rpx;
   border-radius: 9999rpx;
-  font-size: 24rpx;
-  color: #666666;
+  border: 1rpx solid rgba(102, 126, 234, 0.15);
 }
 
+.date-badge text {
+  font-size: 24rpx;
+  color: #667eea;
+  font-weight: 500;
+}
+
+/* 消息行 */
 .message-row {
-  margin-bottom: 32rpx;
+  margin-bottom: 36rpx;
   display: flex;
-  flex-direction: column;
-  animation: fadeInUp 0.3s ease-out;
+  flex-direction: row;
+  animation: messageSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .ai-message {
   align-items: flex-start;
+  flex-direction: row;
 }
 
 .user-message {
   align-items: flex-end;
-  padding-right: 0;
+  flex-direction: row-reverse;
 }
 
+/* 消息气泡包装器 */
+.message-bubble-wrapper {
+  display: flex;
+  flex-direction: column;
+  max-width: 70%;
+}
+
+/* 消息气泡 */
 .message-bubble {
-  max-width: 75%;
-  padding: 24rpx 32rpx;
+  padding: 24rpx 28rpx;
   border-radius: 24rpx;
-  margin-bottom: 12rpx;
+  margin-bottom: 8rpx;
   word-wrap: break-word;
+  position: relative;
+  overflow: hidden;
 }
 
-.ai-message .message-bubble {
-  background: #FFFFFF;
-  border: 1rpx solid #E0E0E0;
-  border-bottom-left-radius: 0;
-  margin-left: 0;
+/* AI消息气泡 - 白色玻璃态效果 */
+.ai-bubble {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20rpx);
+  border: 1rpx solid rgba(102, 126, 234, 0.1);
+  border-top-left-radius: 8rpx;
+  box-shadow: 0 8rpx 32rpx rgba(102, 126, 234, 0.08);
 }
 
-.user-message .message-bubble {
-  background: #007AFF;
+.ai-bubble::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1rpx;
+  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.2), transparent);
+}
+
+/* 用户消息气泡 - 渐变效果 */
+.user-bubble {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: #FFFFFF;
-  border-bottom-right-radius: 0;
-  margin-right: 0;
-  word-break: break-word;
+  border-top-right-radius: 8rpx;
+  box-shadow: 0 8rpx 24rpx rgba(102, 126, 234, 0.3);
+  position: relative;
 }
 
+.user-bubble::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.message-text {
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+.user-text {
+  color: #FFFFFF;
+}
+
+.ai-markdown {
+  font-size: 28rpx;
+  line-height: 1.6;
+  color: #333333;
+}
+
+/* 消息时间 */
 .message-time {
-  font-size: 22rpx;
+  font-size: 20rpx;
   color: #999999;
+  padding: 0 8rpx;
+}
+
+.user-message .message-time {
+  text-align: right;
 }
 
 /* 加载指示器 */
 .loading-indicator {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 16rpx;
-  padding: 24rpx;
-  color: #666666;
-  font-size: 26rpx;
+  padding: 20rpx 28rpx;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20rpx);
+  border-radius: 24rpx;
+  border: 1rpx solid rgba(102, 126, 234, 0.1);
+  max-width: 320rpx;
+  animation: fadeInScale 0.3s ease-out;
+  box-shadow: 0 8rpx 32rpx rgba(102, 126, 234, 0.08);
+}
+
+.loading-text {
+  font-size: 24rpx;
+  color: #667eea;
+  font-weight: 500;
 }
 
 .typing-dots {
   display: flex;
-  gap: 6rpx;
+  gap: 8rpx;
 }
 
 .dot {
-  width: 8rpx;
-  height: 8rpx;
-  background: #999999;
+  width: 12rpx;
+  height: 12rpx;
+  background: linear-gradient(135deg, #667eea, #764ba2);
   border-radius: 50%;
-  animation: typing 1.4s infinite ease-in-out;
+  animation: typingBounce 1.4s infinite ease-in-out;
+  box-shadow: 0 0 8rpx rgba(102, 126, 234, 0.3);
 }
 
 .dot:nth-child(2) {
@@ -163,25 +242,36 @@ export default {
   animation-delay: 0.4s;
 }
 
-@keyframes typing {
+@keyframes typingBounce {
   0%, 60%, 100% {
     transform: translateY(0);
-    opacity: 0.4;
+    opacity: 0.5;
   }
   30% {
-    transform: translateY(-10rpx);
+    transform: translateY(-16rpx);
     opacity: 1;
   }
 }
 
-@keyframes fadeInUp {
+@keyframes messageSlideIn {
   from {
     opacity: 0;
-    transform: translateY(20rpx);
+    transform: translateY(24rpx);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 </style>
