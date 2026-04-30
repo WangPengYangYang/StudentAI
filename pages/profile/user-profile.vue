@@ -1,11 +1,17 @@
 <template>
   <view class="user-profile-container">
     <!-- 简化导航栏 -->
-    <view class="nav-bar">
-      <view class="nav-back" @click="goBack">‹</view>
+    <view class="page-header">
+        <view class="page-header__left" @click="goBack">
+          <image class="page-header__back-icon" src="/static/left.png" mode="aspectFit"></image>
+        </view>
+        <view class="page-header__center">
+          <text class="page-header__title">用户画像</text>
+        </view>
+        <view class="page-header__right"></view>
     </view>
 
-    <scroll-view class="profile-content" scroll-y="true" :style="{paddingBottom: safeAreaBottom}">
+    <scroll-view class="profile-content page-content" scroll-y="true" :style="{paddingBottom: safeAreaBottom}">
       <!-- 生成选校方案按钮 -->
       <view class="school-plan-card" @click="generateSchoolPlan">
         <view class="plan-content">
@@ -270,36 +276,6 @@ export default {
   flex: 1;
   background: linear-gradient(180deg, #F7F9FC 0%, #FFFFFF 100%);
   min-height: 100vh;
-}
-
-/* 简化导航栏 */
-.nav-bar {
-  background-color: #fff;
-  padding: 32rpx 48rpx;
-  padding-top: calc(var(--status-bar-height) + 32rpx);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-}
-
-.nav-back, .nav-edit {
-  font-size: 40rpx;
-  color: #006B5C;
-  font-weight: bold;
-  padding: 8rpx;
-  transition: transform 0.2s ease;
-}
-
-.nav-back:active, .nav-edit:active {
-  transform: scale(0.9);
-}
-
-.nav-title {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: #191C1E;
 }
 
 /* 内容区域 */

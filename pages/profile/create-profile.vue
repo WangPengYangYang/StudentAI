@@ -1,11 +1,15 @@
 <template>
   <view class="create-profile-container">
     <!-- 顶部导航栏 -->
-    <view class="nav-bar">
-      <view class="nav-content">
-        <view class="nav-back" @click="goBack">‹</view>
-        <text class="nav-title">完善个人信息</text>
-        <view class="nav-spacer"></view>
+    <view class="page-header page-header--sticky">
+      <view class="page-header__content">
+        <view class="page-header__left" @click="goBack">
+          <image class="page-header__back-icon" src="/static/left.png" mode="aspectFit"></image>
+        </view>
+        <view class="page-header__center">
+          <text class="page-header__title">完善个人信息</text>
+        </view>
+        <view class="page-header__right"></view>
       </view>
     </view>
 
@@ -592,38 +596,6 @@ export default {
   background: linear-gradient(180deg, #F7F9FC 0%, #FFFFFF 100%);
   min-height: 100vh;
 }
-
-/* 导航栏 */
-.nav-bar {
-  background: #FFFFFF;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
-  padding: 32rpx 48rpx;
-  padding-top: calc(var(--status-bar-height) + 32rpx);
-}
-
-.nav-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.nav-back {
-  font-size: 40rpx;
-  color: #006B5C;
-  font-weight: bold;
-  padding: 8rpx;
-  transition: transform 0.2s ease;
-}
-
-.nav-back:active { transform: scale(0.9); }
-
-.nav-title {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: #191C1E;
-}
-
-.nav-spacer { width: 40rpx; }
 
 /* 步骤指示器 */
 .step-indicator {

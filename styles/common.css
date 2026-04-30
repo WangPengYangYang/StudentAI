@@ -1,0 +1,92 @@
+/**
+ * 全局通用样式
+ * 统一各页面顶部栏高度和样式
+ */
+page {
+  background: #F7F9FC;
+}
+/* ==================== 顶部导航栏 ==================== */
+/**
+ * 统一顶部栏样式
+ * 高度计算：状态栏高度 + 上下padding(32rpx*2) + 内容高度
+ */
+.page-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: calc(var(--status-bar-height) + 32rpx) 48rpx 32rpx 48rpx;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(24px);
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+/* 顶部栏标题 - 居中显示 */
+.page-header__title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1A1A1A;
+}
+
+/* 顶部栏内容区域 - 用于左右布局 */
+.page-header__content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* 顶部栏左侧（返回按钮等） */
+.page-header__left {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 顶部栏中间标题 */
+.page-header__center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 顶部栏右侧（占位或操作按钮） */
+.page-header__right {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 返回按钮图标 */
+.page-header__back-icon {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+/* 页面内容区域 - 为固定头部留出空间 */
+.page-content {
+  margin-top: calc(var(--status-bar-height) + 32rpx + 64rpx + 36rpx);
+}
+
+/* sticky顶部栏（非fixed） */
+.page-header--sticky {
+  position: sticky !important;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: calc(var(--status-bar-height) + 32rpx) 48rpx 32rpx 48rpx;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(24px);
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}

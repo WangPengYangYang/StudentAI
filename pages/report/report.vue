@@ -1,13 +1,18 @@
 <template>
   <view class="report-page">
     <!-- 固定顶部栏 -->
-    <view v-if="!loading && reports.length" class="report-page__header">
-      <text class="header__title">我的选校报告</text>
-      <text class="header__count">共{{ reports.length }}份报告</text>
+    <view v-if="!loading && reports.length" class="page-header">
+      <view class="page-header__content">
+        <view class="page-header__left"></view>
+        <view class="page-header__center">
+          <text class="page-header__title">我的选校报告</text>
+        </view>
+        <view class="page-header__right"></view>
+      </view>
     </view>
 
     <!-- 页面主体 -->
-    <view class="report-page__body">
+    <view class="report-page__body page-content">
       <!-- 加载状态 -->
       <view v-if="loading" class="report-page__loading">
         <text class="loading__text">加载中...</text>
@@ -232,40 +237,11 @@ export default {
   box-shadow: 0 4rpx 6rpx rgba(0, 107, 92, 0.2);
 }
 
-/* ==================== 列表头部 ==================== */
-.report-page__header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: calc(var(--status-bar-height) + 32rpx) 48rpx 32rpx 48rpx;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(24px);
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
-}
-
-.header__title {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: #191C1E;
-}
-
-.header__count {
-  font-size: 24rpx;
-  color: #6B7280;
-}
-
 /* ==================== 报告列表 ==================== */
 .report-page__list {
   flex: 1;
   padding: 0 24rpx;
   padding-top: 32rpx;
-  /* 为固定头部留出空间：状态栏高度 + 上padding + 下padding + 内容高度 */
-  margin-top: calc(var(--status-bar-height) + 32rpx + 32rpx + 36rpx);
   box-sizing: border-box;
 }
 

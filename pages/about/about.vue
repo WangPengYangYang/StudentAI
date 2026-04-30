@@ -1,13 +1,11 @@
 <template>
   <view class="about-container">
     <!-- 顶部导航栏 -->
-    <view class="nav-bar">
-      <view class="nav-content">
-        <text class="nav-title">关于我们</text>
-      </view>
+    <view class="page-header page-header--sticky">
+      <text class="page-header__title">关于我们</text>
     </view>
 
-    <scroll-view class="about-content" scroll-y="true">
+    <scroll-view class="about-content page-content" scroll-y="true">
       <!-- 应用信息 -->
       <view class="app-info">
         <image src="/static/logo.gif" class="app-logo"></image>
@@ -63,19 +61,6 @@ export default {
   flex: 1;
   background: #F7F9FC;
   min-height: 100vh;
-}
-
-.nav-bar {
-  background: #FFFFFF;
-  padding: 32rpx 48rpx;
-  padding-top: calc(var(--status-bar-height) + 32rpx);
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
-}
-
-.nav-title {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: #191C1E;
 }
 
 .about-content {

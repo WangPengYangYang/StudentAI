@@ -1,14 +1,15 @@
 <template>
   <view class="detail-container">
     <!-- 顶部导航栏 -->
-    <view class="nav-bar">
-      <view class="nav-content">
-        <view class="back-button" @click="goBack">
-          <text class="back-icon">←</text>
-          <text class="back-text">返回</text>
+    <view class="page-header">
+      <view class="page-header__content">
+        <view class="page-header__left" @click="goBack">
+          <image class="page-header__back-icon" src="/static/left.png" mode="aspectFit"></image>
         </view>
-        <text class="nav-title">院校详情</text>
-        <view class="nav-right"></view>
+        <view class="page-header__center">
+          <text class="page-header__title">院校详情</text>
+        </view>
+        <view class="page-header__right"></view>
       </view>
     </view>
 
@@ -25,7 +26,7 @@
     </view>
 
     <!-- 院校详情内容 -->
-    <view v-else class="detail-content">
+    <view v-else class="detail-content page-content">
       <!-- 院校头部信息 -->
       <view class="university-header">
         <view class="university-image-large">
@@ -225,37 +226,6 @@ export default {
   background: #F7F9FC;
   padding-bottom: 120rpx;
 }
-
-.nav-bar {
-  background: #FFFFFF;
-  padding: 32rpx 24rpx;
-  padding-top: calc(var(--status-bar-height) + 32rpx);
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.nav-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.back-button {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-}
-
-.back-icon, .back-text, .nav-title {
-  color: #191C1E;
-}
-
-.back-icon { font-size: 32rpx; }
-.back-text { font-size: 28rpx; }
-.nav-title { font-size: 32rpx; font-weight: 600; }
-.nav-right { width: 80rpx; }
 
 .university-header {
   background: linear-gradient(135deg, #006B5C 0%, #00BFA5 100%);

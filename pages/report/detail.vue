@@ -1,9 +1,15 @@
 <template>
   <view class="report-detail-container">
     <!-- 顶部导航栏 -->
-    <view class="navbar">
-      <view class="back-button" @click="goBack">
-        <text class="back-icon">←</text>
+    <view class="page-header">
+      <view class="page-header__content">
+        <view class="page-header__left" @click="goBack">
+          <image class="page-header__back-icon" src="/static/left.png" mode="aspectFit"></image>
+        </view>
+        <view class="page-header__center">
+          <text class="page-header__title">报告详情</text>
+        </view>
+        <view class="page-header__right"></view>
       </view>
     </view>
 
@@ -21,7 +27,7 @@
     </view>
 
     <!-- 报告内容 -->
-    <scroll-view v-else class="report-content" scroll-y="true">
+    <scroll-view v-else class="report-content page-content" scroll-y="true">
       <!-- 报告头部 -->
       <view class="report-header">
         <view class="report-title">{{ report.title }}</view>
@@ -187,25 +193,6 @@ export default {
   flex: 1;
   background: #F7F9FC;
   min-height: 100vh;
-}
-
-/* 导航栏 */
-.navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 32rpx 24rpx;
-  background: #FFFFFF;
-  border-bottom: 1rpx solid #E5E7EB;
-}
-
-.back-button {
-  padding: 8rpx;
-}
-
-.back-icon {
-  font-size: 32rpx;
-  color: #374151;
 }
 
 /* 报告内容 */

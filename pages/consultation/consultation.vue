@@ -1,18 +1,19 @@
 <template>
   <view class="container">
     <!-- 顶部导航栏 -->
-    <view class="nav-bar">
-      <view class="nav-content">
-        <view class="nav-back" @click="goBack">
-          <text class="back-icon">‹</text>
-          <text>返回</text>
+    <view class="page-header">
+      <view class="page-header__content">
+        <view class="page-header__left" @click="goBack">
+          <image class="page-header__back-icon" src="/static/left.png" mode="aspectFit"></image>
         </view>
-        <text class="nav-title">预约咨询</text>
-        <view class="nav-placeholder"></view>
+        <view class="page-header__center">
+          <text class="page-header__title">预约咨询</text>
+        </view>
+        <view class="page-header__right"></view>
       </view>
     </view>
 
-    <scroll-view class="content" scroll-y="true" :style="{paddingBottom: safeAreaBottom}">
+    <scroll-view class="content page-content" scroll-y="true" :style="{paddingBottom: safeAreaBottom}">
       <!-- 咨询类型选择 -->
       <view class="section">
         <view class="section-title">咨询类型</view>
@@ -230,13 +231,6 @@ export default {
 
 <style>
 .container { flex: 1; background: #F7F9FC; min-height: 100vh; }
-
-.nav-bar { background: #FFFFFF; box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06); padding: 32rpx 48rpx; padding-top: calc(var(--status-bar-height) + 32rpx); }
-.nav-content { display: flex; align-items: center; justify-content: space-between; }
-.nav-back { display: flex; align-items: center; gap: 8rpx; color: #006B5C; font-size: 28rpx; font-weight: 500; }
-.back-icon { font-size: 36rpx; font-weight: bold; }
-.nav-title { font-size: 36rpx; font-weight: 700; color: #191C1E; }
-.nav-placeholder { width: 100rpx; }
 
 .content { flex: 1; padding: 32rpx 24rpx; box-sizing: border-box; }
 

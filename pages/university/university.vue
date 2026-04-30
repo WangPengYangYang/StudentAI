@@ -1,15 +1,19 @@
 <template>
   <view class="university-container">
     <!-- 顶部导航栏 -->
-    <view class="header">
-      <view class="nav-back" @click="goBack">
-        <text class="back-icon">←</text>
+    <view class="page-header">
+      <view class="page-header__content">
+        <view class="page-header__left" @click="goBack">
+          <image class="page-header__back-icon" src="/static/left.png" mode="aspectFit"></image>
+        </view>
+        <view class="page-header__center">
+          <text class="page-header__title">{{ countryName }}院校</text>
+        </view>
+        <view class="page-header__right"></view>
       </view>
-      <text class="header-title">{{ countryName }}院校</text>
-      <view class="nav-placeholder"></view>
     </view>
 
-    <scroll-view class="content" scroll-y="true">
+    <scroll-view class="content page-content" scroll-y="true">
       <!-- 国家信息卡片 -->
       <view class="country-card">
         <view class="country-header">
@@ -244,44 +248,6 @@ export default {
   flex: 1;
   background: #F7F9FC;
   min-height: 100vh;
-}
-
-/* 顶部导航栏 */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 32rpx 48rpx;
-  padding-top: calc(var(--status-bar-height) + 32rpx);
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(24px);
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
-}
-
-.nav-back {
-  width: 64rpx;
-  height: 64rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.back-icon {
-  font-size: 32rpx;
-  font-weight: 700;
-  color: #1A1A1A;
-}
-
-.header-title {
-  font-size: 32rpx;
-  font-weight: 800;
-  color: #1A1A1A;
-  letter-spacing: -0.025em;
-}
-
-.nav-placeholder {
-  width: 64rpx;
 }
 
 .content {

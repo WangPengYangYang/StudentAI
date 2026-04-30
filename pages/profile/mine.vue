@@ -1,11 +1,17 @@
 <template>
   <view class="profile-container">
     <!-- 顶部导航栏 -->
-    <view class="nav-bar">
-      <text class="nav-title">个人中心</text>
+    <view class="page-header">
+      <view class="page-header__content">
+        <view class="page-header__left"></view>
+        <view class="page-header__center">
+          <text class="page-header__title">个人中心</text>
+        </view>
+        <view class="page-header__right"></view>
+      </view>
     </view>
 
-    <scroll-view class="profile-content" scroll-y :style="{paddingBottom: safeAreaBottom}">
+    <scroll-view class="profile-content page-content" scroll-y :style="{paddingBottom: safeAreaBottom}">
       <!-- 用户信息 -->
       <view class="user-content">
         <view class="user-avatar" @click="editAvatar">
@@ -247,22 +253,6 @@ export default {
 .profile-container {
   background: linear-gradient(180deg, #F7F9FC 0%, #FFFFFF 100%);
   min-height: 100vh;
-}
-
-.nav-bar {
-  background: #FFFFFF;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
-  padding: 32rpx 48rpx;
-  padding-top: calc(var(--status-bar-height) + 32rpx);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.nav-title {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: #191C1E;
 }
 
 .profile-content {

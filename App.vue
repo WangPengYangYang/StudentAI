@@ -33,6 +33,9 @@
 </script>
 
 <style>
+	/* 导入全局通用样式 */
+	@import './styles/common.css';
+
 	/* 每个页面公共css */
 	page {
 		/* 状态栏安全区域变量 - 默认47px适配iPhone X系列 */

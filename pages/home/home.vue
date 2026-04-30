@@ -1,11 +1,17 @@
 <template>
-  <view class="home-container">
+  <view>
     <!-- 顶部导航栏 -->
-    <view class="header">
-      <text class="header-title">首页</text>
+    <view class="page-header">
+      <view class="page-header__content">
+        <view class="page-header__left"></view>
+        <view class="page-header__center">
+          <text class="page-header__title">首页</text>
+        </view>
+        <view class="page-header__right"></view>
+      </view>
     </view>
 
-    <scroll-view class="home-content" scroll-y>
+    <scroll-view class="home-content page-content" scroll-y>
       <!-- 用户进度卡片 -->
       <view class="progress-card">
         <view class="progress-header">
@@ -230,43 +236,12 @@ export default {
   }
 }
 </script>
-
 <style scoped>
-.home-container {
-  flex: 1;
-  background: #F7F9FC;
-  min-height: 100vh;
-}
-
-/* 顶部导航栏 */
-.header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: calc(var(--status-bar-height) + 32rpx) 48rpx 32rpx 48rpx;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(24px);
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
-}
-
-.header-title {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: #1A1A1A;
-}
-
 .home-content {
   flex: 1;
   padding: 32rpx 24rpx 120rpx;
   width: 100%;
   box-sizing: border-box;
-  /* 为固定头部留出空间：状态栏高度 + 上下padding + 内容高度 */
-  margin-top: calc(var(--status-bar-height) + 32rpx + 64rpx);
 }
 
 /* 用户进度卡片 */

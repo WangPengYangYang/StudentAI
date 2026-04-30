@@ -1,13 +1,11 @@
 <template>
   <view class="feedback-container">
     <!-- 顶部导航栏 -->
-    <view class="nav-bar">
-      <view class="nav-content">
-        <text class="nav-title">{{ helpData.title || '帮助与反馈' }}</text>
-      </view>
+    <view class="page-header page-header--sticky">
+      <text class="page-header__title">{{ helpData.title || '帮助与反馈' }}</text>
     </view>
 
-    <scroll-view class="feedback-content" scroll-y="true">
+    <scroll-view class="feedback-content page-content" scroll-y="true">
       <!-- 帮助与联系信息 -->
       <view class="section" v-if="helpData.description || helpData.contact_email">
         <text class="section-title">帮助与联系</text>
@@ -84,19 +82,6 @@ export default {
   flex: 1;
   background: #F7F9FC;
   min-height: 100vh;
-}
-
-.nav-bar {
-  background: #FFFFFF;
-  padding: 32rpx 48rpx;
-  padding-top: calc(var(--status-bar-height) + 32rpx);
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
-}
-
-.nav-title {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: #191C1E;
 }
 
 .feedback-content {

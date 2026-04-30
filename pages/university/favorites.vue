@@ -1,16 +1,19 @@
 <template>
   <view class="favorites-container">
     <!-- 导航栏 -->
-    <view class="nav-bar">
-      <view class="nav-content">
-        <view class="nav-back" @click="goBack">
-          <text class="back-icon">‹</text>
+    <view class="page-header">
+      <view class="page-header__content">
+        <view class="page-header__left" @click="goBack">
+          <image class="page-header__back-icon" src="/static/left.png" mode="aspectFit"></image>
         </view>
-        <text class="nav-title">我的收藏院校</text>
+        <view class="page-header__center">
+          <text class="page-header__title">我的收藏院校</text>
+        </view>
+        <view class="page-header__right"></view>
       </view>
     </view>
 
-    <scroll-view class="favorites-content" scroll-y="true" :style="{paddingBottom: safeAreaBottom}">
+    <scroll-view class="favorites-content page-content" scroll-y="true" :style="{paddingBottom: safeAreaBottom}">
       <!-- 加载状态 -->
       <view v-if="loading" class="loading-state">
         <view class="loading-spinner"></view>
@@ -191,53 +194,6 @@ export default {
   flex: 1;
   background: linear-gradient(180deg, #F7F9FC 0%, #FFFFFF 100%);
   min-height: 100vh;
-}
-
-/* 导航栏样式 */
-.nav-bar {
-  background: #FFFFFF;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
-  padding: 32rpx 48rpx;
-  padding-top: calc(var(--status-bar-height) + 32rpx);
-  backdrop-filter: blur(20rpx);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.nav-content {
-  display: flex;
-  align-items: center;
-  gap: 24rpx;
-}
-
-.nav-back {
-  width: 48rpx;
-  height: 48rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: #F1F5F9;
-  transition: background-color 0.2s ease;
-}
-
-.nav-back:active {
-  background: #E2E8F0;
-}
-
-.back-icon {
-  font-size: 36rpx;
-  color: #64748B;
-  font-weight: bold;
-  margin-top: -4rpx;
-}
-
-.nav-title {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: #191C1E;
-  font-family: 'WenQuanYi Zen Hei';
 }
 
 /* 内容区域 */
