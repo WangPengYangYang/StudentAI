@@ -28,12 +28,14 @@
     />
 
     <!-- 对话内容区域 -->
-    <message-list
-      :messages="messages"
-      :is-loading="isLoading"
-      :show-date-indicator="showDateIndicator"
-      :scroll-to-view="scrollToView"
-    />
+    <view class="message-list-wrapper">
+      <message-list
+        :messages="messages"
+        :is-loading="isLoading"
+        :show-date-indicator="showDateIndicator"
+        :scroll-to-view="scrollToView"
+      />
+    </view>
 
     <!-- 底部操作区域 -->
     <chat-input
@@ -187,11 +189,13 @@ export default {
     async loadHistory(conversationId) {
       try {
         const response = await chatAPI.getHistory(conversationId, 1, 50)
-        this.messages = (response.data.messages || []).map(msg => ({
+        // 消息可能是倒序返回的（最新的在前），需要反转为正序（最早的在前）
+        const messages = response.data.messages || []
+        this.messages = messages.map(msg => ({
           type: msg.role === 'user' ? 'user' : 'ai',
           content: msg.content,
           time: this.formatTime(msg.created_at)
-        }))
+        })).reverse()
         this.scrollToBottom()
       } catch (error) {
         console.error('获取历史消息失败:', error)
@@ -303,6 +307,13 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 消息列表容器 */
+.message-list-wrapper {
+  flex: 1;
   position: relative;
   overflow: hidden;
 }

@@ -66,22 +66,19 @@ import {apiUtils, authAPI} from '../../api/index.js'
 			}
 		},
 		onLoad() {
-      uni.reLaunch({
-        url: '/pages/home/home'
-      });
-		//	this.checkLoginStatus();
+		this.checkLoginStatus();
 		},
 		methods: {
 			// 检查登录状态
 			checkLoginStatus() {
 				const token = uni.getStorageSync('access_token');
-				const userInfo = uni.getStorageSync('userInfo');
-				if (token && userInfo) {
+				// 只需要有 token 即可，userInfo 不是必需的
+				if (token) {
 					this.isLogin = true;
 					// 如果已登录，直接跳转到主页
-					uni.redirectTo({
-						url: '/pages/home/home'
-					});
+          uni.reLaunch({
+            url: '/pages/home/home'
+          });
 				}
 			},
 
@@ -101,26 +98,6 @@ import {apiUtils, authAPI} from '../../api/index.js'
 						});
 					});
 					console.log('微信登录code获取成功', loginRes.code);
-          // 获取用户信息
-          uni.getUserProfile({
-            provider: 'weixin',
-            success: (userRes) => {
-              console.log(userRes);
-              uni.hideLoading();
-
-              // 保存用户信息
-              const userInfo = {
-                nickName: userRes.userInfo.nickName,
-                avatarUrl: userRes.userInfo.avatarUrl,
-                email: userRes.userInfo.email || 'user@scholarai.com'
-              };
-              // 存储到本地
-              uni.setStorageSync('userInfo', userInfo);
-            },
-            fail: (err) => {
-              console.log(err);
-              }
-          });
 
 					// 调用后端微信登录接口
 					const result = await authAPI.wechatLogin(loginRes.code);
@@ -145,11 +122,6 @@ import {apiUtils, authAPI} from '../../api/index.js'
 				uni.setStorageSync('access_token', authData.access_token);
 				uni.setStorageSync('refresh_token', authData.refresh_token || '');
 				uni.setStorageSync('userInfo', authData.user || {});
-
-				// 如果是匿名登录，存储session_id
-				if (authData.session_id) {
-					uni.setStorageSync('session_id', authData.session_id);
-				}
 
 				uni.hideLoading();
 				uni.showToast({

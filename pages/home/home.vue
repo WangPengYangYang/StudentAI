@@ -56,7 +56,7 @@
         </view>
         <view class="countries-grid">
           <view class="country-item" v-for="item in displayedCountries" :key="item.code" @click="selectCountry(item)">
-            <text class="country-icon">{{ item.icon }}</text>
+            <image class="country-icon" :src="item.icon" mode="aspectFit"></image>
             <text class="country-name">{{ item.name }}</text>
           </view>
         </view>
@@ -98,17 +98,6 @@
 import { profileAPI, schoolAPI, countryAPI } from '../../api/index.js'
 
 // 常量配置
-const COUNTRY_INFO = {
-  US: { flag: '🇺🇸', name: '美国', tag: '美国名校' },
-  UK: { flag: '🇬🇧', name: '英国', tag: '英国名校' },
-  CA: { flag: '🇨🇦', name: '加拿大', tag: '加拿大名校' },
-  AU: { flag: '🇦🇺', name: '澳大利亚', tag: '澳洲名校' },
-  HK: { flag: '🇭🇰', name: '中国香港' },
-  SG: { flag: '🇸🇬', name: '新加坡' },
-  DE: { flag: '🇩🇪', name: '德国' },
-  FR: { flag: '🇫🇷', name: '法国' }
-}
-
 const ROUTES = {
   chat: '/pages/chat/chat',
   report: '/pages/report/report',
@@ -161,7 +150,7 @@ export default {
         this.countries = res.data.list.map(c => ({
           code: c.code,
           name: c.name,
-          icon: c.icon || COUNTRY_INFO[c.code]?.flag || '🏳️'
+          icon: c.icon
         }))
       }
     },
@@ -172,7 +161,7 @@ export default {
         this.universities = res.data.list.map(s => ({
           id: s.id,
           name: s.name_cn || s.name_en,
-          location: `${COUNTRY_INFO[s.country]?.name || s.country} · ${s.city}`,
+          location: `${s.country_name || s.country} · ${s.city}`,
           rank: this.formatRank(s),
           image: '/static/logo.jpeg',
           tags: this.getSchoolTags(s)
@@ -195,8 +184,7 @@ export default {
       else if (rank <= 50) tags.push('全球前50')
       else if (rank <= 100) tags.push('全球前100')
 
-      const countryTag = COUNTRY_INFO[school.country]?.tag
-      if (countryTag) tags.push(countryTag)
+      if (school.country_name) tags.push(school.country_name + '名校')
 
       return tags.length ? tags : ['知名院校']
     },
@@ -443,20 +431,25 @@ export default {
   background: #F2F4F7;
   border-radius: 24rpx;
   padding: 24rpx;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   box-sizing: border-box;
   min-width: 0;
 }
 
 .country-icon {
-  font-size: 48rpx;
-  margin-bottom: 16rpx;
+  width: 64rpx;
+  height: 64rpx;
+  margin-bottom: 12rpx;
 }
 
 .country-name {
-  font-size: 24rpx;
+  font-size: 26rpx;
   font-weight: 600;
   color: #3C4A46;
+  text-align: center;
 }
 
 /* 大学列表 */

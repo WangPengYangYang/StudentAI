@@ -72,9 +72,12 @@ export default {
 <style scoped>
 .chat-content {
   box-sizing: border-box;
-  flex: 1;
-  overflow-y: auto;
-  padding: 32rpx 32rpx 160rpx 32rpx;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 32rpx 32rpx 200rpx 32rpx;
   margin-top: calc(var(--status-bar-height) + 160rpx);
 }
 

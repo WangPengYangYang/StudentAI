@@ -375,8 +375,12 @@ export default {
     },
 
     // 步骤导航
-    nextStep() {
+    async nextStep() {
       if (!this.validateCurrentStep()) return;
+
+      // 保存当前步骤数据
+      await this.saveCurrentStep();
+
       this.currentStep++;
     },
 
@@ -384,16 +388,103 @@ export default {
       this.currentStep--;
     },
 
+    // 保存当前步骤数据
+    async saveCurrentStep() {
+      try {
+        const stepApiMap = {
+          1: () => {
+            const data = {
+              education_level: this.formData.educationLevel,
+              school_name: this.formData.schoolName,
+              school_rank: this.formData.schoolRank,
+              major: this.formData.major,
+              gpa: this.formData.gpa ? parseFloat(this.formData.gpa) : null,
+              gpa_scale: this.formData.gpaScale
+            };
+            return profileAPI.updateEducation(data);
+          },
+          2: () => {
+            const data = {
+              toefl: this.formData.toefl ? parseFloat(this.formData.toefl) : null,
+              ielts: this.formData.ielts ? parseFloat(this.formData.ielts) : null,
+              gre: this.formData.gre ? parseFloat(this.formData.gre) : null,
+              gmat: this.formData.gmat ? parseFloat(this.formData.gmat) : null
+            };
+            return profileAPI.updateLanguage(data);
+          },
+          3: () => {
+            const formatExperiences = (experiences) => {
+              return experiences.map(exp => ({
+                company: exp.company,
+                position: exp.position,
+                duration_months: exp.durationMonths ? parseInt(exp.durationMonths) : null,
+                description: exp.description
+              }));
+            };
+
+            const formatResearch = (research) => {
+              return research.map(item => ({
+                title: item.title,
+                role: item.role,
+                duration_months: item.durationMonths ? parseInt(item.durationMonths) : null,
+                description: item.description
+              }));
+            };
+
+            const formatAwards = (awards) => {
+              return awards.map(award => ({
+                name: award.name,
+                level: award.level,
+                year: award.year ? parseInt(award.year) : null
+              }));
+            };
+
+            const data = {
+              internships: formatExperiences(this.formData.internships),
+              research: formatResearch(this.formData.research),
+              awards: formatAwards(this.formData.awards)
+            };
+            return profileAPI.updateExperience(data);
+          },
+          4: () => {
+            const data = {
+              target_countries: this.formData.targetCountries,
+              target_majors: this.formData.targetMajors,
+              target_degree: this.formData.targetDegree,
+              budget_range: this.formData.budgetRange,
+              career_goal: this.formData.careerGoal
+            };
+            return profileAPI.updatePreference(data);
+          }
+        };
+
+        if (stepApiMap[this.currentStep]) {
+          await stepApiMap[this.currentStep]();
+          this.saveToLocalStorage();
+          console.log(`步骤 ${this.currentStep} 数据保存成功`);
+        }
+      } catch (error) {
+        console.error(`保存步骤 ${this.currentStep} 数据失败:`, error);
+        // 保存失败不影响继续操作，但给用户提示
+        uni.showToast({ title: '数据同步失败，已保存到本地', icon: 'none' });
+      }
+    },
+
     validateCurrentStep() {
       const validations = {
         1: () => !this.formData.educationLevel || !this.formData.schoolName || !this.formData.major || !this.formData.gpa || !this.formData.gpaScale,
         2: () => !this.formData.toefl && !this.formData.ielts && !this.formData.gre && !this.formData.gmat,
+        3: () => {
+          // 第3步：科研实习经历 - 选填，不强制校验
+          return false;
+        },
         4: () => this.formData.targetCountries.length === 0 || this.formData.targetMajors.length === 0 || !this.formData.targetDegree || !this.formData.budgetRange
       };
 
       const messages = {
         1: '请填写学历、毕业院校、专业、GPA和评分标准',
         2: '请至少填写一项语言标化成绩',
+        3: '',
         4: '请完成所有意向偏好选择'
       };
 
@@ -443,7 +534,12 @@ export default {
       Object.keys(fieldMap).forEach(key => {
         const sourceKey = fieldMap[key];
         if (profileData[sourceKey] !== undefined) {
-          this.formData[key] = profileData[sourceKey];
+          // targetCountries 和 targetMajors 为 null 时赋值为空数组
+          if ((key === 'targetCountries' || key === 'targetMajors') && profileData[sourceKey] === null) {
+            this.formData[key] = [];
+          } else {
+            this.formData[key] = profileData[sourceKey];
+          }
         }
       });
 
@@ -502,68 +598,16 @@ export default {
       try {
         this.isLoading = true;
 
-        // 转换实习经历数据结构，将驼峰命名转为下划线命名
-        const formatExperiences = (experiences) => {
-          return experiences.map(exp => ({
-            company: exp.company,
-            position: exp.position,
-            duration_months: exp.durationMonths ? parseInt(exp.durationMonths) : null,
-            description: exp.description
-          }));
+        // 只保存第四步（意向偏好）数据
+        const data = {
+          target_countries: this.formData.targetCountries,
+          target_majors: this.formData.targetMajors,
+          target_degree: this.formData.targetDegree,
+          budget_range: this.formData.budgetRange,
+          career_goal: this.formData.careerGoal
         };
 
-        // 转换科研经历数据结构
-        const formatResearch = (research) => {
-          return research.map(item => ({
-            title: item.title,
-            role: item.role,
-            duration_months: item.durationMonths ? parseInt(item.durationMonths) : null,
-            description: item.description
-          }));
-        };
-
-        // 转换获奖经历数据结构
-        const formatAwards = (awards) => {
-          return awards.map(award => ({
-            name: award.name,
-            level: award.level,
-            year: award.year ? parseInt(award.year) : null
-          }));
-        };
-
-        const saveData = {
-          education: {
-            education_level: this.formData.educationLevel,
-            school_name: this.formData.schoolName,
-            major: this.formData.major,
-            gpa: parseFloat(this.formData.gpa),
-            gpa_scale: this.formData.gpaScale
-          },
-          language: {
-            toefl: this.formData.toefl ? parseFloat(this.formData.toefl) : null,
-            ielts: this.formData.ielts ? parseFloat(this.formData.ielts) : null,
-            gre: this.formData.gre ? parseFloat(this.formData.gre) : null,
-            gmat: this.formData.gmat ? parseFloat(this.formData.gmat) : null
-          },
-          experience: {
-            internships: formatExperiences(this.formData.internships),
-            research: formatResearch(this.formData.research),
-            awards: formatAwards(this.formData.awards)
-          },
-          preference: {
-            target_countries: this.formData.targetCountries,
-            target_majors: this.formData.targetMajors,
-            target_degree: this.formData.targetDegree,
-            budget_range: this.formData.budgetRange,
-            career_goal: this.formData.careerGoal
-          }
-        };
-
-        const savePromises = Object.entries(saveData).map(([type, data]) =>
-          profileAPI[`update${type.charAt(0).toUpperCase() + type.slice(1)}`](data)
-        );
-
-        await Promise.all(savePromises);
+        await profileAPI.updatePreference(data);
         this.saveToLocalStorage();
 
         uni.showToast({ title: '资料保存成功', icon: 'success' });
