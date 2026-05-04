@@ -124,7 +124,7 @@ export default {
           if (res.confirm) {
             this.clearUserData();
             uni.showToast({ title: '退出成功', icon: 'success' });
-            // 退出后直接回到首页
+            // 退出后返回登录页
             setTimeout(() => {
               uni.reLaunch({ url: '/pages/index/index' });
             }, 1000);
@@ -135,8 +135,8 @@ export default {
 
     clearUserData() {
       // 清除所有用户相关存储
-      uni.removeStorageSync('userToken');
-      uni.removeStorageSync('refreshToken');
+      uni.removeStorageSync('access_token');
+      uni.removeStorageSync('refresh_token');
       uni.removeStorageSync('userInfo');
       this.userInfo = { nickName: '', avatarUrl: '' };
     },
