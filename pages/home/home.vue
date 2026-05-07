@@ -163,7 +163,7 @@ export default {
           name: s.name_cn || s.name_en,
           location: `${s.country_name || s.country} · ${s.city}`,
           rank: this.formatRank(s),
-          image: '/static/logo.jpeg',
+          image: s.coverImage || '/static/logo.jpeg',
           tags: this.getSchoolTags(s)
         }))
       }

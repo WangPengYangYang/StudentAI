@@ -1,7 +1,7 @@
 const BASE_URL = 'https://pre.schoolmate.website/api/v1'
 
 // Token管理
-const getToken = () => uni.getStorageSync('access_token') || ''
+const getToken = () => uni.getStorageSync('access_token') || 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySUQiOjEsInRpZXIiOiJmcmVlIiwidG9rZW5UeXBlIjoiYWNjZXNzIiwiaXNzIjoic3R1ZHktYXNzaXN0YW50LXN0YWdpbmciLCJpYXQiOjE3NzY1OTQxOTMsImV4cCI6MTgwODEzMDE5M30.JE_s0mTvhY3tl-kTOpBckgoE3sp6mdvXs83JLFWlHh8'
 const getRefreshToken = () => uni.getStorageSync('refresh_token') || ''
 const saveTokens = (accessToken, refreshToken) => {
   uni.setStorageSync('access_token', accessToken)

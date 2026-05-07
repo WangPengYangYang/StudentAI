@@ -17,7 +17,7 @@
       </view>
 
       <!-- 登录按钮 -->
-      <button class="login-btn" @click="wechatLogin">
+      <button class="login-btn" open-type="getPhoneNumber"  @click="wechatLogin">
         <text>微信一键登录</text>
       </button>
     </view>

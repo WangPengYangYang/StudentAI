@@ -30,7 +30,8 @@
       <!-- 院校头部信息 -->
       <view class="university-header">
         <view class="university-image-large">
-          <view class="uni-placeholder-large">{{ schoolInfo.nameCn }}</view>
+          <image v-if="schoolInfo.coverImage" class="uni-cover-image" :src="schoolInfo.coverImage" mode="aspectFill"></image>
+          <view v-else class="uni-placeholder-large">{{ schoolInfo.nameCn }}</view>
         </view>
         <view class="header-info">
           <text class="uni-name-large">{{ schoolInfo.nameCn }}</text>
@@ -241,6 +242,11 @@ export default {
   border-radius: 16rpx;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.2);
+}
+
+.uni-cover-image {
+  width: 100%;
+  height: 100%;
 }
 
 .uni-placeholder-large {
