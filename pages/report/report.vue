@@ -1,7 +1,7 @@
 <template>
   <view class="report-page">
     <!-- 固定顶部栏 -->
-    <view v-if="!loading && reports.length" class="page-header">
+    <view v-if="!loading" class="page-header">
       <view class="page-header__content">
         <view class="page-header__left"></view>
         <view class="page-header__center">
@@ -127,8 +127,8 @@ export default {
       return typeMap[type] || type
     },
     generateReport() {
-      this.showToast('请先创建选校方案')
-      uni.switchTab({ url: '/pages/home/home' })
+      uni.setStorageSync('quickMessage', '请基于我的个人背景，帮我生成一份选校方案');
+      uni.switchTab({ url: '/pages/chat/chat' });
     },
     viewReportDetails(reportId) {
       uni.navigateTo({ url: `/pages/report/detail?reportId=${reportId}` })

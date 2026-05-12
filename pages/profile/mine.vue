@@ -98,7 +98,7 @@ export default {
         const { code, data } = await userAPI.getUserInfo();
         if (code === 0 && data) {
           this.userInfo = {
-            nickName: data.nickname || '',
+            nickName: data.nickname || '--',
             avatarUrl: data.avatar || ''
           };
         }

@@ -741,7 +741,7 @@ export default {
 
 .item-input, .picker-value {
   width: 100%;
-  padding: 32rpx 24rpx;
+  padding: 0 24rpx;
   border: 2rpx solid #E2E8F0;
   border-radius: 16rpx;
   font-size: 28rpx;
@@ -750,7 +750,7 @@ export default {
   box-sizing: border-box;
   transition: all 0.2s ease;
   height: 96rpx;
-  line-height: 32rpx;
+  line-height: 96rpx;
 }
 
 .item-input:focus, .picker-value:active {
