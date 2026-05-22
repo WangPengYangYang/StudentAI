@@ -66,7 +66,7 @@
       <view class="section">
         <view class="section-header">
           <text class="section-title">全球名校速递</text>
-          <text class="section-tag">QS 2024</text>
+          <text class="section-tag">QS {{ qsYear }}</text>
         </view>
         <view class="universities-list">
           <view class="university-card" v-for="item in displayedUniversities" :key="item.id" @click="viewUniversity(item)">
@@ -111,6 +111,7 @@ export default {
       completionRate: 0,
       countries: [],
       universities: [],
+      qsYear: '2026',
       showAll: { countries: false, universities: false }
     }
   },
@@ -158,6 +159,9 @@ export default {
     async getTrendingSchools() {
       const res = await this.safeApiCall(schoolAPI.getTrendingSchools.bind(schoolAPI), 10)
       if (res?.data?.list) {
+        if (res.data.year) {
+          this.qsYear = res.data.year
+        }
         this.universities = res.data.list.map(s => ({
           id: s.id,
           name: s.name_cn || s.name_en,

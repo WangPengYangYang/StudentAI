@@ -44,11 +44,7 @@
 		--safe-area-inset-top: env(safe-area-inset-top, 47px);
 	}
 
-	/* 针对小程序的额外适配 */
+	/* 针对小程序的额外适配 - 已移除padding-top，由.page-content统一控制安全区 */
 	/* #ifdef MP-WEIXIN */
-	page {
-		padding-top: constant(safe-area-inset-top);
-		padding-top: env(safe-area-inset-top);
-	}
 	/* #endif */
 </style>
