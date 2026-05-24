@@ -11,7 +11,18 @@
     <view v-for="(message, index) in messages" :key="index" :id="'message-' + index"
           :class="['message-row', message.type + '-message']">
       <view class="message-bubble-wrapper">
-        <view class="message-bubble" :class="message.type + '-bubble'">
+        <!-- AI 思考中：用思考气泡替换 AI 聊天框 -->
+        <template v-if="message.type === 'ai' && isLoading && !message.content && index === messages.length - 1">
+          <view class="message-bubble ai-bubble thinking-bubble">
+            <text class="loading-text">Scholar AI 正在思考</text>
+            <view class="typing-dots">
+              <view class="dot"></view>
+              <view class="dot"></view>
+              <view class="dot"></view>
+            </view>
+          </view>
+        </template>
+        <view v-else class="message-bubble" :class="message.type + '-bubble'">
           <!-- 用户消息使用普通文本渲染 -->
           <text v-if="message.type === 'user'" class="message-text user-text">{{ message.content }}</text>
           <!-- AI消息使用zero-markdown-view组件渲染 -->
@@ -20,16 +31,6 @@
         <view class="message-time" v-if="message.time">
           <text>{{ message.time }}</text>
         </view>
-      </view>
-    </view>
-
-    <!-- 加载状态 -->
-    <view class="loading-indicator" v-if="isLoading">
-      <text class="loading-text">Scholar AI 正在思考</text>
-      <view class="typing-dots">
-        <view class="dot"></view>
-        <view class="dot"></view>
-        <view class="dot"></view>
       </view>
     </view>
 
@@ -202,19 +203,13 @@ export default {
   text-align: right;
 }
 
-/* 加载指示器 */
-.loading-indicator {
+/* 思考中气泡（替换空 AI 聊天框） */
+.thinking-bubble {
   display: flex;
   align-items: center;
   gap: 16rpx;
   padding: 20rpx 28rpx;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20rpx);
-  border-radius: 24rpx;
-  border: 1rpx solid rgba(102, 126, 234, 0.1);
-  max-width: 320rpx;
   animation: fadeInScale 0.3s ease-out;
-  box-shadow: 0 8rpx 32rpx rgba(102, 126, 234, 0.08);
 }
 
 .loading-text {

@@ -196,7 +196,7 @@
         <view class="button-group">
           <button v-if="currentStep > 1" class="prev-button" @click="prevStep">上一步</button>
           <button v-if="currentStep < 4" class="next-button" @click="nextStep">下一步</button>
-          <button v-if="currentStep === 4" class="submit-button" @click="submitProfile">完成</button>
+          <button v-if="currentStep === 4" class="submit-button" @click="submitProfile">完成并生成报告</button>
         </view>
       </view>
     </scroll-view>
@@ -611,7 +611,9 @@ export default {
         this.saveToLocalStorage();
 
         uni.showToast({ title: '资料保存成功', icon: 'success' });
-        setTimeout(() => uni.reLaunch({ url: '/pages/profile/mine' }), 1500);
+        // 设置快捷消息，跳转到对话页后自动发送
+        uni.setStorageSync('quickMessage', '请基于我的背景为我生成选校方案');
+        setTimeout(() => uni.switchTab({ url: '/pages/chat/chat' }), 1500);
 
       } catch (error) {
         console.error('保存用户资料失败:', error);

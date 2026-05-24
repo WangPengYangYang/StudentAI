@@ -99,8 +99,8 @@ export default {
 
 .avatar-container {
   position: relative;
-  width: 80rpx;
-  height: 80rpx;
+  width: 50rpx;
+  height:50rpx;
 }
 
 /* 头像发光效果 */
@@ -127,8 +127,8 @@ export default {
 }
 
 .agent-avatar {
-  width: 80rpx;
-  height: 80rpx;
+  width: 50rpx;
+  height: 50rpx;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 9999rpx;
   border: 3rpx solid rgba(255, 255, 255, 0.8);

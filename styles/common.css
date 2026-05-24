@@ -19,7 +19,7 @@ page {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: calc(var(--status-bar-height) + 32rpx) 48rpx 32rpx 48rpx;
+  padding: calc(var(--status-bar-height) + 16rpx + 32rpx) 48rpx 32rpx 48rpx;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(24px);
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
@@ -74,7 +74,7 @@ page {
 
 /* 页面内容区域 - 为固定头部留出空间 */
 .page-content {
-  margin-top: calc(var(--status-bar-height) + 32rpx + 64rpx + 36rpx);
+  margin-top: calc(var(--status-bar-height) + 16rpx + 32rpx + 64rpx + 36rpx);
 }
 
 /* sticky顶部栏（非fixed） */
@@ -85,7 +85,7 @@ page {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: calc(var(--status-bar-height) + 32rpx) 48rpx 32rpx 48rpx;
+  padding: calc(var(--status-bar-height) + 16rpx + 32rpx) 48rpx 32rpx 48rpx;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(24px);
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);

@@ -3,7 +3,10 @@
     <view class="content">
       <!-- Logo和品牌 -->
       <view class="logo-section">
-        <image class="logo" src="/static/logo.jpeg"></image>
+        <view class="logo-container">
+          <view class="logo-glow"></view>
+          <image class="logo" src="/static/logo.gif"></image>
+        </view>
         <text class="brand-name">Scholar AI</text>
         <text class="brand-slogan">智能选校助手</text>
       </view>
@@ -124,12 +127,65 @@ export default {
   margin-bottom: 120rpx;
 }
 
-.logo {
+.logo-container {
+  position: relative;
   width: 160rpx;
   height: 160rpx;
-  border-radius: 32rpx;
   margin-bottom: 32rpx;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 旋转渐变发光环 */
+.logo-glow {
+  position: absolute;
+  top: -12rpx;
+  left: -12rpx;
+  right: -12rpx;
+  bottom: -12rpx;
+  background: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #f5576c);
+  border-radius: 9999rpx;
+  opacity: 0.85;
+  animation: rotateGlow 3s linear infinite;
+  z-index: 0;
+  filter: blur(2rpx);
+}
+
+/* 外层柔光呼吸 */
+.logo-container::after {
+  content: '';
+  position: absolute;
+  top: -40rpx;
+  left: -40rpx;
+  right: -40rpx;
+  bottom: -40rpx;
+  background: radial-gradient(circle, rgba(102, 126, 234, 0.35) 0%, transparent 70%);
+  border-radius: 50%;
+  z-index: -1;
+  animation: breathGlow 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes rotateGlow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes breathGlow {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.08); }
+}
+
+.logo {
+  position: relative;
+  z-index: 1;
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 9999rpx;
+  border: 4rpx solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8rpx 32rpx rgba(102, 126, 234, 0.35);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .brand-name {
