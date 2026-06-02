@@ -101,78 +101,11 @@ const request = (options) => {
   })
 }
 
-// SSE流式请求
-const sseRequest = (url, data, onMessage, onError, onComplete) => {
-  return new Promise((resolve, reject) => {
-    uni.request({
-      url: BASE_URL + url,
-      method: 'POST',
-      data,
-      header: {
-        'Content-Type': 'application/json',
-        'Authorization': getToken() ? `Bearer ${getToken()}` : '',
-        'Accept': 'text/event-stream'
-      },
-      success: (res) => {
-        if (res.statusCode === 200) {
-          try {
-            const events = parseSSE(res.data)
-            let full = ''
-            events.forEach(e => {
-              if (e.event === 'token' && e.data?.content) {
-                full += e.data.content
-                onMessage?.(full)
-              }
-            })
-            const done = events.find(e => e.event === 'done')
-            const result = done?.data || { full_response: full }
-            onComplete?.(result)
-            resolve(result)
-          } catch (e) {
-            onError?.(e)
-            reject(e)
-          }
-        } else {
-          const err = new Error(`HTTP错误: ${res.statusCode}`)
-          onError?.(err)
-          reject(err)
-        }
-      },
-      fail: (e) => { onError?.(e); reject(e) }
-    })
-  })
-}
-
-// 解析SSE
-const parseSSE = (data) => {
-  if (typeof data !== 'string') return []
-  const events = []
-  let current = {}
-  
-  data.split('\n').forEach(line => {
-    if (line.startsWith('event:')) {
-      if (current.event) events.push(current)
-      current = { event: line.slice(6).trim() }
-    } else if (line.startsWith('data:') && current.event) {
-      const str = line.slice(5).trim()
-      if (str) {
-        try { current.data = JSON.parse(str) } catch (e) {}
-      }
-    } else if (!line.trim() && current.event) {
-      events.push(current)
-      current = {}
-    }
-  })
-  if (current.event) events.push(current)
-  return events
-}
-
 export default {
   get: (url, params) => request({ url, data: params }),
   post: (url, data) => request({ url, method: 'POST', data }),
   put: (url, data) => request({ url, method: 'PUT', data }),
   delete: (url, data) => request({ url, method: 'DELETE', data }),
-  sse: sseRequest,
   saveTokens,
   clearTokens,
   getToken,

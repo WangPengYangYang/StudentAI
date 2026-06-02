@@ -66,16 +66,13 @@ export const profileAPI = {
  */
 export const chatAPI = {
   /**
-   * 发送消息（SSE 流式）
-   * @param {string|null} conversationId - 会话ID，首次传null
+   * 发送消息（JSON 同步响应）
+   * @param {number|null} conversationId - 会话ID，首次可传null
    * @param {string} message - 用户消息
-   * @param {Function} onMessage - 消息回调
-   * @param {Function} onError - 错误回调
-   * @param {Function} onComplete - 完成回调
    * @returns {Promise}
    */
-  sendMessage: (conversationId, message, onMessage, onError, onComplete) =>
-    request.sse(`${BASE_PATH}/chat/send`, { conversation_id: conversationId, message }, onMessage, onError, onComplete),
+  sendMessage: (conversationId, message) =>
+    request.post(`${BASE_PATH}/chat/send`, { conversation_id: conversationId, message }),
 
   /**
    * 获取会话列表

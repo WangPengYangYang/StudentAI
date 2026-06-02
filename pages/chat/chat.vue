@@ -108,11 +108,6 @@ export default {
     async handleSendMessage(messageContent) {
       if (!messageContent.trim()) return
 
-      // 如果是第一次发送消息，先创建新会话
-      if (!this.currentConversationId) {
-        await this.createNewConversationWithTitle(messageContent)
-      }
-
       // 添加用户消息
       const userMessage = {
         type: 'user',
@@ -122,7 +117,7 @@ export default {
       this.messages.push(userMessage)
       this.isInputFocus = false
 
-      // 调用AI接口（使用流式请求）
+      // 调用AI接口（同步JSON响应）
       this.isLoading = true
 
       // 添加AI消息占位符
@@ -133,32 +128,21 @@ export default {
         time: this.getCurrentTime()
       }
       this.messages.push(aiMessage)
+      this.scrollToBottom()
 
       try {
-        await chatAPI.sendMessage(
-          this.currentConversationId,
-          messageContent,
-          // onMessage 回调（流式更新）
-          (content) => {
-            this.messages[aiMessageIndex].content = content
-            this.scrollToBottom()
-          },
-          // onError 回调
-          (error) => {
-            console.error('流式请求错误:', error)
-            this.messages[aiMessageIndex].content = '抱歉，网络连接出现问题。请检查网络后重试。'
-            this.isLoading = false
-            this.scrollToBottom()
-          },
-          // onComplete 回调
-          (data) => {
-            this.isLoading = false
-            this.scrollToBottom()
-          }
-        )
+        const response = await chatAPI.sendMessage(this.currentConversationId, messageContent)
+        const result = response?.data || {}
+
+        if (result.conversation_id) {
+          this.currentConversationId = result.conversation_id
+        }
+
+        this.messages[aiMessageIndex].content = result.content || '抱歉，暂时没有获取到回复内容。'
       } catch (error) {
         console.error('发送消息失败:', error)
         this.messages[aiMessageIndex].content = '抱歉，网络连接出现问题。请检查网络后重试。'
+      } finally {
         this.isLoading = false
         this.scrollToBottom()
       }
