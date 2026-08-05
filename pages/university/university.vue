@@ -110,9 +110,9 @@ export default {
             name_en: school.name_en,
             location: `${this.getCountryName(school.country)} · ${school.city}`,
             rank: this.getRankDisplay(school),
-            image: '/static/logo.jpeg',
+            image: school.cover_image || '/static/logo.jpeg',
             tags: this.getSchoolTags(school),
-            qsRank: school.qsRank
+            qs_rank: school.qs_rank
           }))
 
           // 提取热门专业
@@ -163,14 +163,14 @@ export default {
 
     // 获取学校排名显示
     getRankDisplay(school) {
-      if (school.qsRankRaw) {
-        return `QS ${school.qsRankRaw}`
-      } else if (school.qsRank && school.qsRank > 0) {
-        return `QS #${school.qsRank}`
-      } else if (school.theRankRaw) {
-        return `THE ${school.theRankRaw}`
-      } else if (school.theRank && school.theRank > 0) {
-        return `THE #${school.theRank}`
+      if (school.qs_rank_raw) {
+        return `QS ${school.qs_rank_raw}`
+      } else if (school.qs_rank && school.qs_rank > 0) {
+        return `QS #${school.qs_rank}`
+      } else if (school.the_rank_raw) {
+        return `THE ${school.the_rank_raw}`
+      } else if (school.the_rank && school.the_rank > 0) {
+        return `THE #${school.the_rank}`
       }
       return '未排名'
     },
@@ -178,11 +178,11 @@ export default {
     // 获取学校标签
     getSchoolTags(school) {
       const tags = []
-      if (school.qsRank && school.qsRank <= 10) {
+      if (school.qs_rank && school.qs_rank <= 10) {
         tags.push('世界顶尖')
-      } else if (school.qsRank && school.qsRank <= 50) {
+      } else if (school.qs_rank && school.qs_rank <= 50) {
         tags.push('全球前50')
-      } else if (school.qsRank && school.qsRank <= 100) {
+      } else if (school.qs_rank && school.qs_rank <= 100) {
         tags.push('全球前100')
       }
 

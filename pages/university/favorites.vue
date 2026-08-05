@@ -43,8 +43,8 @@
               <view class="school-meta">
                 <text class="country">{{ getCountryName(favorite.country) }}</text>
                 <text class="separator">•</text>
-                <text class="rank" v-if="favorite.qsRank > 0">QS排名: {{ favorite.qsRank }}</text>
-                <text class="rank" v-else-if="favorite.theRank > 0">THE排名: {{ favorite.theRank }}</text>
+                <text class="rank" v-if="favorite.qs_rank > 0">QS排名: {{ favorite.qs_rank }}</text>
+                <text class="rank" v-else-if="favorite.the_rank > 0">THE排名: {{ favorite.the_rank }}</text>
                 <text class="rank" v-else>暂无排名</text>
               </view>
             </view>

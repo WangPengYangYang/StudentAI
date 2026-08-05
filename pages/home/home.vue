@@ -167,23 +167,23 @@ export default {
           name: s.name_cn || s.name_en,
           location: `${s.country_name || s.country} · ${s.city}`,
           rank: this.formatRank(s),
-          image: s.coverImage || '/static/logo.jpeg',
+          image: s.cover_image || '/static/logo.jpeg',
           tags: this.getSchoolTags(s)
         }))
       }
     },
 
     formatRank(school) {
-      if (school.qsRankRaw) return `QS ${school.qsRankRaw}`
-      if (school.qsRank > 0) return `QS #${school.qsRank}`
-      if (school.theRankRaw) return `THE ${school.theRankRaw}`
-      if (school.theRank > 0) return `THE #${school.theRank}`
+      if (school.qs_rank_raw) return `QS ${school.qs_rank_raw}`
+      if (school.qs_rank > 0) return `QS #${school.qs_rank}`
+      if (school.the_rank_raw) return `THE ${school.the_rank_raw}`
+      if (school.the_rank > 0) return `THE #${school.the_rank}`
       return '未排名'
     },
 
     getSchoolTags(school) {
       const tags = []
-      const rank = school.qsRank
+      const rank = school.qs_rank
       if (rank <= 10) tags.push('世界顶尖')
       else if (rank <= 50) tags.push('全球前50')
       else if (rank <= 100) tags.push('全球前100')

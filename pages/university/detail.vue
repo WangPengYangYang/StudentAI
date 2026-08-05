@@ -30,11 +30,11 @@
       <!-- 院校头部信息 -->
       <view class="university-header">
         <view class="university-image-large">
-          <image v-if="schoolInfo.coverImage" class="uni-cover-image" :src="schoolInfo.coverImage" mode="aspectFill"></image>
-          <view v-else class="uni-placeholder-large">{{ schoolInfo.nameCn }}</view>
+          <image v-if="schoolInfo.cover_image" class="uni-cover-image" :src="schoolInfo.cover_image" mode="aspectFill"></image>
+          <view v-else class="uni-placeholder-large">{{ schoolInfo.name_cn }}</view>
         </view>
         <view class="header-info">
-          <text class="uni-name-large">{{ schoolInfo.nameCn }}</text>
+          <text class="uni-name-large">{{ schoolInfo.name_cn }}</text>
           <text class="uni-location">{{ getLocationText(schoolInfo) }}</text>
           <view class="ranking-info" v-if="rankDisplay">
             <text class="ranking-label">排名</text>
@@ -58,7 +58,7 @@
         </view>
         <view class="majors-list">
           <view class="major-item" v-for="major in schoolInfo.majors" :key="major.id">
-            <text class="major-name">{{ major.nameCn }}</text>
+            <text class="major-name">{{ major.name_cn }}</text>
             <text class="major-category">{{ major.category }}</text>
           </view>
         </view>
@@ -71,31 +71,31 @@
         </view>
         <view class="programs-list">
           <view class="program-item" v-for="program in schoolInfo.programs" :key="program.id">
-            <text class="program-name">{{ program.nameCn || program.name }}</text>
+            <text class="program-name">{{ program.name_cn || program.name }}</text>
             <view class="program-details">
               <text class="program-degree">{{ program.degree }}</text>
               <text class="program-duration" v-if="program.duration">{{ program.duration }}</text>
             </view>
             <view class="program-requirements" v-if="hasRequirements(program)">
-              <text class="req-item" v-if="program.gpaMin">GPA: {{ program.gpaMin }}/{{ program.gpaScale || 4.0 }}</text>
-              <text class="req-item" v-if="program.toeflMin">托福: {{ program.toeflMin }}+</text>
-              <text class="req-item" v-if="program.ieltsMin">雅思: {{ program.ieltsMin }}+</text>
-              <text class="req-item" v-if="program.greMin">GRE: {{ program.greMin }}+</text>
+              <text class="req-item" v-if="program.gpa_min">GPA: {{ program.gpa_min }}/{{ program.gpa_scale || 4.0 }}</text>
+              <text class="req-item" v-if="program.toefl_min">托福: {{ program.toefl_min }}+</text>
+              <text class="req-item" v-if="program.ielts_min">雅思: {{ program.ielts_min }}+</text>
+              <text class="req-item" v-if="program.gre_min">GRE: {{ program.gre_min }}+</text>
             </view>
-            <text class="program-tuition" v-if="program.tuitionYearly">
-              年学费: ${{ program.tuitionYearly.toLocaleString() }}
+            <text class="program-tuition" v-if="program.tuition_yearly">
+              年学费: ${{ program.tuition_yearly.toLocaleString() }}
             </text>
           </view>
         </view>
       </view>
 
       <!-- 官网链接 -->
-      <view class="section-card" v-if="schoolInfo.officialUrl">
+      <view class="section-card" v-if="schoolInfo.official_url">
         <view class="section-header">
           <text class="section-title">官方网站</text>
         </view>
         <view class="official-link">
-          <text class="link-text" @click="openOfficialUrl">{{ schoolInfo.officialUrl }}</text>
+          <text class="link-text" @click="openOfficialUrl">{{ schoolInfo.official_url }}</text>
         </view>
       </view>
 
@@ -134,10 +134,10 @@ export default {
     rankDisplay() {
       const { schoolInfo } = this
       if (!schoolInfo) return ''
-      if (schoolInfo.qsRankRaw) return `QS ${schoolInfo.qsRankRaw}`
-      if (schoolInfo.qsRank > 0) return `QS #${schoolInfo.qsRank}`
-      if (schoolInfo.theRankRaw) return `THE ${schoolInfo.theRankRaw}`
-      if (schoolInfo.theRank > 0) return `THE #${schoolInfo.theRank}`
+      if (schoolInfo.qs_rank_raw) return `QS ${schoolInfo.qs_rank_raw}`
+      if (schoolInfo.qs_rank > 0) return `QS #${schoolInfo.qs_rank}`
+      if (schoolInfo.the_rank_raw) return `THE ${schoolInfo.the_rank_raw}`
+      if (schoolInfo.the_rank > 0) return `THE #${schoolInfo.the_rank}`
       return ''
     },
     hasMajors() {
@@ -181,13 +181,13 @@ export default {
     },
 
     hasRequirements(program) {
-      return program.gpaMin || program.toeflMin || program.ieltsMin || program.greMin
+      return program.gpa_min || program.toefl_min || program.ielts_min || program.gre_min
     },
 
     openOfficialUrl() {
-      if (this.schoolInfo.officialUrl) {
+      if (this.schoolInfo.official_url) {
         uni.setClipboardData({
-          data: this.schoolInfo.officialUrl,
+          data: this.schoolInfo.official_url,
           success: () => {
             uni.showToast({ title: '官网链接已复制到剪贴板', icon: 'none' })
           }
