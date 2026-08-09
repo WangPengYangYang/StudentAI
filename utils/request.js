@@ -63,7 +63,7 @@ const request = (options) => {
           'Authorization': token ? `Bearer ${token}` : '',
           ...options.header
         },
-        timeout: 30000,
+        timeout: 120000,
         success: async (res) => {
           const isExpired = res.statusCode === 401 || (res.data && res.data.code === 1003)
           
