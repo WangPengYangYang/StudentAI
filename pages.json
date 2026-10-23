@@ -79,6 +79,13 @@
 			}
 		},
 		{
+			"path": "pages/agreement/agreement",
+			"style": {
+				"navigationBarTitleText": "协议",
+				"navigationStyle": "custom"
+			}
+		},
+		{
 			"path": "pages/about/about",
 			"style": {
 				"navigationBarTitleText": "关于我们",

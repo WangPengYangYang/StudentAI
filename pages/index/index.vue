@@ -11,12 +11,23 @@
         <text class="brand-slogan">智能选校助手</text>
       </view>
 
-      <!-- 用户协议 -->
+      <!-- 用户协议与隐私政策 -->
       <view class="agreement-section">
-        <label class="agreement-checkbox">
-          <checkbox value="agree" checked />
-          <text class="agreement-text">登录即表示同意<text class="link">用户协议</text>和<text class="link">隐私政策</text></text>
-        </label>
+        <view class="agreement-row">
+          <view
+            class="agreement-checkbox"
+            :class="{ 'agreement-checkbox--checked': agreed }"
+            @click="toggleAgree"
+          >
+            <text v-if="agreed" class="agreement-checkbox__tick">✓</text>
+          </view>
+          <text class="agreement-text" @click="toggleAgree">
+            我已阅读并同意
+          </text>
+          <text class="link" @click.stop="openDoc('user')">《用户协议》</text>
+          <text class="agreement-text">和</text>
+          <text class="link" @click.stop="openDoc('privacy')">《隐私政策》</text>
+        </view>
       </view>
 
       <!-- 登录按钮 -->
@@ -34,13 +45,28 @@ export default {
   data() {
     return {
       isLogin: false,
-      userInfo: {}
+      userInfo: {},
+      // 是否已勾选同意协议。默认 false——用户必须主动勾选，
+      // 不得默认勾选或"登录即视为同意"（违反微信"不得强制授权才能进入"规则）
+      agreed: false
     }
   },
   onLoad() {
     this.checkLoginStatus();
   },
   methods: {
+    // 切换协议勾选状态
+    toggleAgree() {
+      this.agreed = !this.agreed;
+    },
+
+    // 打开协议页面
+    openDoc(type) {
+      uni.navigateTo({
+        url: `/pages/agreement/agreement?type=${type}`
+      });
+    },
+
     // 检查登录状态
     checkLoginStatus() {
       const token = uni.getStorageSync('access_token');
@@ -54,6 +80,15 @@ export default {
 
     // 微信登录
     async wechatLogin() {
+      // 未勾选协议时不允许登录
+      if (!this.agreed) {
+        uni.showToast({
+          title: '请先阅读并同意用户协议和隐私政策',
+          icon: 'none'
+        });
+        return;
+      }
+
       uni.showLoading({
         title: '登录中...'
       });
@@ -207,21 +242,53 @@ export default {
   width: 100%;
 }
 
-.agreement-checkbox {
+.agreement-row {
   display: flex;
-  align-items: flex-start;
+  flex-direction: row;
+  align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
+  padding: 0 8rpx;
+}
+
+/* 自绘勾选框：默认未选中，用户点击后才打勾 */
+.agreement-checkbox {
+  width: 32rpx;
+  height: 32rpx;
+  flex-shrink: 0;
+  margin-right: 12rpx;
+  border: 2rpx solid #cbd5e1;
+  border-radius: 6rpx;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.agreement-checkbox--checked {
+  background-color: #07C160;
+  border-color: #07C160;
+}
+
+.agreement-checkbox__tick {
+  font-size: 22rpx;
+  color: #ffffff;
+  font-weight: bold;
+  line-height: 1;
 }
 
 .agreement-text {
   font-size: 24rpx;
   color: #94a3b8;
-  margin-left: 12rpx;
   line-height: 1.5;
 }
 
 .link {
-  color: #64748b;
+  font-size: 24rpx;
+  color: #07C160;
+  line-height: 1.5;
+  margin: 0 2rpx;
 }
 
 .login-btn {

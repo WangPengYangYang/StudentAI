@@ -1,15 +1,21 @@
-const BASE_URL = 'https://pre.schoolmate.website/api/v1'
+import config from '../config/env.js'
+
+const BASE_URL = config.baseUrl
+const ACCESS_TOKEN_KEY = config.storageKeys.accessToken
+const REFRESH_TOKEN_KEY = config.storageKeys.refreshToken
 
 // Token管理
-const getToken = () => uni.getStorageSync('access_token') || 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySUQiOjEsInRpZXIiOiJmcmVlIiwidG9rZW5UeXBlIjoiYWNjZXNzIiwiaXNzIjoic3R1ZHktYXNzaXN0YW50LXN0YWdpbmciLCJpYXQiOjE3NzY1OTQxOTMsImV4cCI6MTgwODEzMDE5M30.JE_s0mTvhY3tl-kTOpBckgoE3sp6mdvXs83JLFWlHh8'
-const getRefreshToken = () => uni.getStorageSync('refresh_token') || ''
+// 注意：此处不设任何兜底 token。未登录时必须为空字符串，
+// 由后端返回 401 触发跳转登录页，而非以固定身份静默访问。
+const getToken = () => uni.getStorageSync(ACCESS_TOKEN_KEY) || ''
+const getRefreshToken = () => uni.getStorageSync(REFRESH_TOKEN_KEY) || ''
 const saveTokens = (accessToken, refreshToken) => {
-  uni.setStorageSync('access_token', accessToken)
-  if (refreshToken) uni.setStorageSync('refresh_token', refreshToken)
+  uni.setStorageSync(ACCESS_TOKEN_KEY, accessToken)
+  if (refreshToken) uni.setStorageSync(REFRESH_TOKEN_KEY, refreshToken)
 }
 const clearTokens = () => {
-  uni.removeStorageSync('access_token')
-  uni.removeStorageSync('refresh_token')
+  uni.removeStorageSync(ACCESS_TOKEN_KEY)
+  uni.removeStorageSync(REFRESH_TOKEN_KEY)
 }
 
 // 刷新状态管理
@@ -63,7 +69,7 @@ const request = (options) => {
           'Authorization': token ? `Bearer ${token}` : '',
           ...options.header
         },
-        timeout: 120000,
+        timeout: config.timeout,
         success: async (res) => {
           const isExpired = res.statusCode === 401 || (res.data && res.data.code === 1003)
           
