@@ -13,7 +13,7 @@
 
       <!-- 用户协议与隐私政策 -->
       <view class="agreement-section">
-        <view class="agreement-row">
+        <view class="agreement-inner">
           <view
             class="agreement-checkbox"
             :class="{ 'agreement-checkbox--checked': agreed }"
@@ -21,12 +21,14 @@
           >
             <text v-if="agreed" class="agreement-checkbox__tick">✓</text>
           </view>
-          <text class="agreement-text" @click="toggleAgree">
-            我已阅读并同意
-          </text>
-          <text class="link" @click.stop="openDoc('user')">《用户协议》</text>
-          <text class="agreement-text">和</text>
-          <text class="link" @click.stop="openDoc('privacy')">《隐私政策》</text>
+          <view class="agreement-lines" @click="toggleAgree">
+            <text class="agreement-text">我已阅读并同意</text>
+            <view class="agreement-links">
+              <text class="link" @click.stop="openDoc('user')">《用户协议》</text>
+              <text class="agreement-text">和</text>
+              <text class="link" @click.stop="openDoc('privacy')">《隐私政策》</text>
+            </view>
+          </view>
         </view>
       </view>
 
@@ -242,21 +244,22 @@ export default {
   width: 100%;
 }
 
-.agreement-row {
+/* 勾选框与文字左右排列，文字区自身换行，避免五个元素挤在一行 */
+.agreement-inner {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  flex-wrap: wrap;
-  padding: 0 8rpx;
+  padding: 0 20rpx;
 }
 
 /* 自绘勾选框：默认未选中，用户点击后才打勾 */
 .agreement-checkbox {
-  width: 32rpx;
-  height: 32rpx;
+  width: 30rpx;
+  height: 30rpx;
   flex-shrink: 0;
-  margin-right: 12rpx;
+  margin-right: 10rpx;
+  margin-top: 6rpx;
   border: 2rpx solid #cbd5e1;
   border-radius: 6rpx;
   background-color: #ffffff;
@@ -272,22 +275,35 @@ export default {
 }
 
 .agreement-checkbox__tick {
-  font-size: 22rpx;
+  font-size: 20rpx;
   color: #ffffff;
   font-weight: bold;
   line-height: 1;
 }
 
+/* 文字区：纵向排列，第二行放两份协议 */
+.agreement-lines {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .agreement-text {
   font-size: 24rpx;
   color: #94a3b8;
-  line-height: 1.5;
+  line-height: 1.6;
+}
+
+.agreement-links {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 .link {
   font-size: 24rpx;
   color: #07C160;
-  line-height: 1.5;
+  line-height: 1.6;
   margin: 0 2rpx;
 }
 
