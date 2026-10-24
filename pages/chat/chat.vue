@@ -154,22 +154,6 @@ export default {
       this.handleSendMessage(reply)
     },
 
-    // 创建带标题的新会话
-    async createNewConversationWithTitle(userMessage) {
-      try {
-        const title = userMessage.length > 20 ? userMessage.substring(0, 20) + '...' : userMessage
-        const response = await chatAPI.createConversation(title)
-        this.currentConversationId = response.data.id
-        console.log('创建新会话成功，ID:', this.currentConversationId, '标题:', title)
-      } catch (error) {
-        console.error('创建新会话失败:', error)
-        uni.showToast({
-          title: '创建会话失败',
-          icon: 'none'
-        })
-      }
-    },
-
     // 加载历史消息
     async loadHistory(conversationId) {
       try {
@@ -205,26 +189,22 @@ export default {
     },
 
     // 创建新会话
-    async createNewConversation() {
-      try {
-        const response = await chatAPI.createConversation('新会话')
-        this.currentConversationId = response.data.id
-        this.messages = []
-        this.showConversationModal = false
-
-        const welcomeMessage = {
-          type: 'ai',
-          content: '你好！我是你的留学申请顾问，请告诉我你的留学需求和背景，我会为你提供专业的选校建议。',
-          time: this.getCurrentTime()
-        }
-        this.messages.push(welcomeMessage)
-      } catch (error) {
-        console.error('创建新会话失败:', error)
-        uni.showToast({
-          title: '创建失败',
-          icon: 'none'
-        })
-      }
+    //
+    // 注意：这里**不再预建会话**，只重置本地状态、把 conversationId 置空。
+    // 会话由后端在收到第一条消息时自动创建（ConversationID==0 即新建）。
+    //
+    // 为什么必须这样改：
+    // 预建会话会先产生一个标题为「新会话」的空会话，用户再发消息时
+    // conversation_id 已不为 0，后端判定为「非首轮」，
+    // 于是不触发生成 AI 标题，标题就永远停在「新会话」。
+    // 同时预建还会在列表里留下 0 条消息的空会话。
+    //
+    // 改后行为与豆包/ChatGPT 一致：发第一条消息时才真正创建会话。
+    createNewConversation() {
+      this.currentConversationId = null
+      this.messages = []
+      this.showConversationModal = false
+      this.showWelcomeMessage()
     },
 
     // 删除当前会话后的处理（创建新会话）
