@@ -2,8 +2,8 @@
     "name" : "StudentAssistant",
     "appid" : "__UNI__6B0305B",
     "description" : "",
-    "versionName" : "1.0.3",
-    "versionCode" : "103",
+    "versionName" : "1.0.5",
+    "versionCode" : 105,
     "transformPx" : false,
     "app-plus" : {
         "usingComponents" : true,
