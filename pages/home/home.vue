@@ -12,8 +12,8 @@
     </view>
 
     <scroll-view class="home-content page-content" scroll-y>
-      <!-- 用户进度卡片 -->
-      <view class="progress-card">
+      <!-- 个人资料卡片：已登录显示完成度，未登录显示访客引导 -->
+      <view v-if="loggedIn" class="progress-card">
         <view class="progress-header">
           <text class="progress-label">Status</text>
           <text class="progress-value">{{ completionRate }}%</text>
@@ -27,6 +27,19 @@
         <text class="progress-desc">完善您的背景信息，AI 导师将能提供更精准的院校匹配建议。</text>
         <view class="progress-button" @click="navigateTo('create-profile')">
           <text>{{ completionRate === 100 ? '查看完整资料' : '继续完善资料' }}</text>
+        </view>
+      </view>
+
+      <!-- 访客模式卡片 -->
+      <view v-else class="guest-card">
+        <view class="guest-card__header">
+          <text class="guest-card__tag">GUEST</text>
+          <text class="guest-card__mode">访客模式</text>
+        </view>
+        <text class="guest-card__title">获取专属选校建议</text>
+        <text class="guest-card__desc">登录并完善个人背景，AI 导师将为您提供更精准的院校匹配建议。</text>
+        <view class="guest-card__button" @click="goLogin">
+          <text>登录后完善资料</text>
         </view>
       </view>
 
@@ -96,6 +109,7 @@
 
 <script>
 import { profileAPI, schoolAPI, countryAPI } from '../../api/index.js'
+import { isLoggedIn, requireLogin } from '../../utils/auth.js'
 
 // 常量配置
 const ROUTES = {
@@ -108,6 +122,8 @@ const ROUTES = {
 export default {
   data() {
     return {
+      // 登录态：决定展示「个人资料完成度」还是「访客引导卡片」
+      loggedIn: false,
       completionRate: 0,
       countries: [],
       universities: [],
@@ -127,15 +143,27 @@ export default {
     this.init()
   },
   onShow() {
-    this.getProfileCompletion()
+    // 从登录页返回时需重新判断登录态
+    this.loggedIn = isLoggedIn()
+    if (this.loggedIn) {
+      this.getProfileCompletion()
+    }
   },
   methods: {
     async init() {
-      await Promise.all([
-        this.getProfileCompletion(),
-        this.getPopularCountries(),
-        this.getTrendingSchools()
-      ])
+      this.loggedIn = isLoggedIn()
+      // 公开内容（国家、榜单）对所有用户加载；
+      // 个人完成度仅登录用户才有意义，访客跳过以避免无谓的 401 请求
+      const tasks = [this.getPopularCountries(), this.getTrendingSchools()]
+      if (this.loggedIn) {
+        tasks.push(this.getProfileCompletion())
+      }
+      await Promise.all(tasks)
+    },
+
+    // 访客点击「登录后完善资料」
+    goLogin() {
+      uni.navigateTo({ url: '/pages/index/index' })
     },
 
     async getProfileCompletion() {
@@ -211,6 +239,12 @@ export default {
       const url = ROUTES[page]
       if (!url) return
 
+      // AI 对话与完善资料依赖用户身份，访客点击时引导登录
+      if ((page === 'chat' || page === 'create-profile') &&
+          !requireLogin('登录后即可使用 AI 智能选校，并获得专属院校匹配建议')) {
+        return
+      }
+
       page === 'chat'
         ? uni.switchTab({ url })
         : uni.navigateTo({ url })
@@ -223,6 +257,8 @@ export default {
     },
 
     viewUniversity(school) {
+      // 院校详情接口需要登录态，访客点击前先引导
+      if (!requireLogin('登录后可查看院校详细信息')) return
       uni.navigateTo({ url: `/pages/university/detail?id=${school.id}` })
     }
   }
@@ -245,6 +281,68 @@ export default {
   box-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.05);
   width: 100%;
   box-sizing: border-box;
+}
+
+/* 访客模式卡片 */
+.guest-card {
+  background: #FFFFFF;
+  border-radius: 32rpx;
+  padding: 32rpx;
+  margin-bottom: 32rpx;
+  box-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.05);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.guest-card__header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+
+.guest-card__tag {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #07C160;
+  letter-spacing: 1rpx;
+}
+
+.guest-card__mode {
+  font-size: 24rpx;
+  color: #94a3b8;
+}
+
+.guest-card__title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 16rpx;
+}
+
+.guest-card__desc {
+  display: block;
+  font-size: 26rpx;
+  color: #64748b;
+  line-height: 1.6;
+  margin-bottom: 28rpx;
+}
+
+.guest-card__button {
+  height: 80rpx;
+  border-radius: 16rpx;
+  background: #F1F5F9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.guest-card__button text {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #07C160;
 }
 
 .progress-header {

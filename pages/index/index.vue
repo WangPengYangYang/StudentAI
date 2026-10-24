@@ -36,6 +36,11 @@
       <button class="login-btn" @click="wechatLogin">
         <text>微信一键登录</text>
       </button>
+
+      <!-- 暂不登录：允许先浏览，符合"先体验后授权"审核要求 -->
+      <button class="guest-btn" @click="goHome">
+        <text>暂不登录，返回首页</text>
+      </button>
     </view>
   </view>
 </template>
@@ -69,12 +74,19 @@ export default {
       });
     },
 
-    // 检查登录状态
+    // 暂不登录，返回首页（免登录浏览）
+    goHome() {
+      uni.switchTab({
+        url: '/pages/home/home'
+      });
+    },
+
+    // 已登录则直接进首页，避免重复登录
     checkLoginStatus() {
       const token = uni.getStorageSync('access_token');
       if (token) {
         this.isLogin = true;
-        uni.reLaunch({
+        uni.switchTab({
           url: '/pages/home/home'
         });
       }
@@ -131,7 +143,8 @@ export default {
         title: '登录成功'
       });
 
-      uni.reLaunch({
+      // home 是 tabBar 页面，必须用 switchTab
+      uni.switchTab({
         url: '/pages/home/home'
       });
     }
@@ -323,6 +336,27 @@ export default {
 }
 
 .login-btn:active {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+
+/* 暂不登录：次要按钮，白底描边，视觉权重低于登录按钮 */
+.guest-btn {
+  width: 100%;
+  height: 96rpx;
+  margin-top: 24rpx;
+  border-radius: 48rpx;
+  background: #ffffff;
+  color: #64748b;
+  font-size: 30rpx;
+  font-weight: 400;
+  border: 1rpx solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.guest-btn:active {
   opacity: 0.9;
   transform: scale(0.98);
 }

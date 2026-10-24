@@ -17,6 +17,12 @@
     <!-- 顶部导航栏 -->
     <chat-nav-bar @show-history="showConversationList" />
 
+    <!-- AI 生成内容声明（合规章节：明示内容由人工智能生成） -->
+    <view class="ai-disclaimer">
+      <text class="ai-disclaimer__badge">AI生成</text>
+      <text class="ai-disclaimer__text">本页面包含人工智能生成内容，仅供参考</text>
+    </view>
+
     <!-- 会话列表抽屉 -->
     <conversation-drawer
       :visible="showConversationModal"
@@ -293,6 +299,37 @@ export default {
   height: 100vh;
   position: relative;
   overflow: hidden;
+}
+
+/* AI 生成内容声明条 */
+.ai-disclaimer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 12rpx 32rpx;
+  background: #FFF7E6;
+  border-bottom: 1rpx solid #FFE7BA;
+  flex-shrink: 0;
+}
+
+.ai-disclaimer__badge {
+  font-size: 20rpx;
+  font-weight: 600;
+  color: #FA8C16;
+  background: #FFEDD5;
+  border: 1rpx solid #FFD591;
+  border-radius: 6rpx;
+  padding: 2rpx 10rpx;
+  margin-right: 12rpx;
+  line-height: 1.6;
+}
+
+.ai-disclaimer__text {
+  font-size: 22rpx;
+  color: #AD6800;
+  line-height: 1.6;
 }
 
 /* 消息列表容器 */

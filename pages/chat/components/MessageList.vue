@@ -23,6 +23,10 @@
           </view>
         </template>
         <view v-else class="message-bubble" :class="message.type + '-bubble'">
+          <!-- AI 生成内容标识（合规要求：逐条明示 AI 生成） -->
+          <view v-if="message.type === 'ai' && message.content" class="ai-content-tag">
+            <text>AI生成内容</text>
+          </view>
           <!-- 用户消息使用普通文本渲染 -->
           <text v-if="message.type === 'user'" class="message-text user-text">{{ message.content }}</text>
           <!-- AI消息使用zero-markdown-view组件渲染 -->
@@ -145,6 +149,24 @@ export default {
   border: 1rpx solid rgba(102, 126, 234, 0.1);
   border-top-left-radius: 8rpx;
   box-shadow: 0 8rpx 32rpx rgba(102, 126, 234, 0.08);
+}
+
+/* AI 生成内容小标签 */
+.ai-content-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2rpx 10rpx;
+  margin-bottom: 12rpx;
+  background: #FFF7E6;
+  border: 1rpx solid #FFD591;
+  border-radius: 6rpx;
+}
+
+.ai-content-tag text {
+  font-size: 20rpx;
+  font-weight: 500;
+  color: #FA8C16;
+  line-height: 1.6;
 }
 
 .ai-bubble::before {

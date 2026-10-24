@@ -1,18 +1,18 @@
 {
 	"pages": [
 		{
+			"path": "pages/home/home",
+			"style": {
+				"navigationBarTitleText": "首页",
+				"navigationStyle": "custom"
+			}
+		},
+		{
 			"path": "pages/index/index",
 			"style": {
 				"navigationBarTitleText": "登录",
 				"navigationStyle": "custom",
 				"navigationBarTextStyle": "white"
-			}
-		},
-		{
-			"path": "pages/home/home",
-			"style": {
-				"navigationBarTitleText": "首页",
-				"navigationStyle": "custom"
 			}
 		},
 		{

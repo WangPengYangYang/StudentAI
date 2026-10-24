@@ -18,8 +18,12 @@
           <image :src="userInfo.avatarUrl || '/static/logo.jpeg'" class="avatar-image" />
         </view>
         <view class="user-info">
-          <text class="user-name" @click="editNickname">{{ userInfo.nickName || '未登录' }}</text>
-          <image v-if="isLoggedIn" src="/static/edit.svg" class="edit-icon" @click="editNickname" />
+          <text class="user-name" @click="loggedIn ? editNickname() : goLogin()">{{ userInfo.nickName || '未登录' }}</text>
+          <image v-if="loggedIn" src="/static/edit.svg" class="edit-icon" @click="editNickname" />
+          <!-- 访客登录入口 -->
+          <view v-if="!loggedIn" class="guest-login-btn" @click="goLogin">
+            <text>微信一键登录</text>
+          </view>
         </view>
       </view>
 
@@ -48,6 +52,7 @@
 
 <script>
 import { userAPI } from "@/api/index.js";
+import { isLoggedIn, requireLogin } from "@/utils/auth.js";
 
 // 菜单配置
 const MENU_CONFIG = [
@@ -71,6 +76,7 @@ const MENU_CONFIG = [
 export default {
   data() {
     return {
+      loggedIn: false,
       safeAreaBottom: '120rpx',
       userInfo: {
         nickName: '',
@@ -83,7 +89,11 @@ export default {
     this.calculateSafeArea();
   },
   onShow() {
-    this.getUserInfo();
+    // 访客进入时不请求用户信息（会 401），直接展示登录引导
+    this.loggedIn = isLoggedIn();
+    if (this.loggedIn) {
+      this.getUserInfo();
+    }
   },
   methods: {
     calculateSafeArea() {
@@ -91,6 +101,11 @@ export default {
       if (safeArea) {
         this.safeAreaBottom = (screenHeight - safeArea.bottom + 120) + 'rpx';
       }
+    },
+
+    // 访客点击登录
+    goLogin() {
+      uni.navigateTo({ url: '/pages/index/index' });
     },
 
     async getUserInfo() {
@@ -124,9 +139,9 @@ export default {
           if (res.confirm) {
             this.clearUserData();
             uni.showToast({ title: '退出成功', icon: 'success' });
-            // 退出后返回登录页
+            // 退出后回到首页（访客模式），不再强制回到登录页
             setTimeout(() => {
-              uni.reLaunch({ url: '/pages/index/index' });
+              uni.switchTab({ url: '/pages/home/home' });
             }, 1000);
           }
         }
@@ -142,6 +157,8 @@ export default {
     },
 
     async editAvatar() {
+      // 访客点击头像引导登录，避免无意义地走上传流程
+      if (!requireLogin('登录后可设置您的头像')) return
       try {
         const avatar = await this.chooseAvatar();
         if (avatar) {
@@ -305,6 +322,21 @@ export default {
   display: flex;
   align-items: baseline;
   gap: 16rpx;
+}
+
+/* 访客登录按钮 */
+.guest-login-btn {
+  padding: 6rpx 20rpx;
+  background: #07C160;
+  border-radius: 24rpx;
+  display: inline-flex;
+  align-items: center;
+}
+
+.guest-login-btn text {
+  font-size: 22rpx;
+  color: #FFFFFF;
+  line-height: 1.6;
 }
 
 .user-name {
