@@ -359,6 +359,9 @@ export default {
 
 .conversation-content {
   flex: 1;
+  /* min-width: 0 必须显式设置：flex 子项默认 min-width:auto，
+     会被内容撑开，导致 text-overflow:ellipsis 失效 */
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 8rpx;
@@ -372,6 +375,8 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  /* 超出容器宽度时省略，配合 min-width:0 生效 */
+  width: 100%;
 }
 
 .conversation-meta {
@@ -394,7 +399,12 @@ export default {
 .conversation-actions {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12rpx;
+  /* 关键：禁止被长标题挤压。缺少此项时，长标题会把删除按钮挤成 0 宽而不可见 */
+  flex-shrink: 0;
+  width: 64rpx;
+  margin-left: 12rpx;
 }
 
 .delete-btn {

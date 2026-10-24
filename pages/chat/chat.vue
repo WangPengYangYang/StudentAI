@@ -207,7 +207,7 @@ export default {
     // 创建新会话
     async createNewConversation() {
       try {
-        const response = await chatAPI.createConversation('新对话')
+        const response = await chatAPI.createConversation('新会话')
         this.currentConversationId = response.data.id
         this.messages = []
         this.showConversationModal = false
