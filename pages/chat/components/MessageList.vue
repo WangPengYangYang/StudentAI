@@ -83,7 +83,8 @@ export default {
   right: 0;
   bottom: 0;
   padding: 32rpx 32rpx 200rpx 32rpx;
-  margin-top: calc(var(--status-bar-height) + 160rpx);
+  /* 导航栏 160rpx + AI 声明条 56rpx，避免首条消息被遮挡 */
+  margin-top: calc(var(--status-bar-height) + 216rpx);
 }
 
 /* 日期指示器 */

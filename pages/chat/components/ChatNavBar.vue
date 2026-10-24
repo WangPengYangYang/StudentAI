@@ -21,6 +21,13 @@
       </view>
       <view class="nav-placeholder"></view>
     </view>
+
+    <!-- AI 生成内容声明：作为导航栏的一部分固定显示，
+         随 nav-bar 一起定位，不依赖状态栏高度计算 -->
+    <view class="ai-disclaimer">
+      <text class="ai-disclaimer__badge">AI生成</text>
+      <text class="ai-disclaimer__text">本页面包含人工智能生成内容，仅供参考</text>
+    </view>
   </view>
 </template>
 
@@ -204,5 +211,39 @@ export default {
   width: 36rpx;
   height: 36rpx;
   opacity: 0.7;
+}
+
+/* AI 生成内容声明条
+   位于 nav-bar 内部，随 nav-bar 一起 fixed 定位，
+   无需计算状态栏高度，避免不同机型错位。 */
+.ai-disclaimer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 10rpx 32rpx 14rpx;
+  background: #FFF7E6;
+  border-top: 1rpx solid #FFE7BA;
+}
+
+.ai-disclaimer__badge {
+  font-size: 20rpx;
+  font-weight: 600;
+  color: #FA8C16;
+  background: #FFEDD5;
+  border: 1rpx solid #FFD591;
+  border-radius: 6rpx;
+  padding: 2rpx 10rpx;
+  margin-right: 12rpx;
+  line-height: 1.6;
+}
+
+.ai-disclaimer__text {
+  font-size: 22rpx;
+  color: #AD6800;
+  line-height: 1.6;
 }
 </style>
