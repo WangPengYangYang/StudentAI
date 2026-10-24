@@ -237,7 +237,11 @@ export default {
       uni.showActionSheet({
         itemList: ['图片', '文件', '位置'],
         success: (res) => {
-          console.log('选择了：' + res.tapIndex)
+          // 附件能力为后续版本预留，当前仅给出反馈，避免"点击无反应"
+          uni.showToast({
+            title: '该功能即将开放',
+            icon: 'none'
+          })
         }
       })
     },
