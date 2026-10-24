@@ -236,11 +236,13 @@ export default {
     showAttachmentMenu() {
       uni.showActionSheet({
         itemList: ['图片', '文件', '位置'],
-        success: (res) => {
+        success: () => {
           // 附件能力为后续版本预留，当前仅给出反馈，避免"点击无反应"
+          // 注意：取消（fail）不提示，取消属用户主动行为
           uni.showToast({
             title: '该功能即将开放',
-            icon: 'none'
+            icon: 'none',
+            duration: 2000
           })
         }
       })
